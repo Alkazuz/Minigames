@@ -1,0 +1,21 @@
+blocked-cmds:
+- plugins
+- pl
+- op
+- spartan
+- bukkit:plugins
+- bukkit:pl
+- mv
+- system
+- pex
+- permissionex
+- plugman
+- npc
+- citizens
+- holographicdisplays
+- hd
+- vault
+- fawe
+- idisguise
+- nte
+- nametagedit
