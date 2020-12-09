@@ -1,0 +1,7 @@
+name: Minigame
+author: Alkazuz
+main: br.alkazuz.minigame.main.Main
+version: 0.1
+depend: [Vault, FastAsyncWorldEdit, ProtocolLib]
+commands:
+  aminigame:
