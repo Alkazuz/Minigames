@@ -1,0 +1,6 @@
+name: vip
+author: Alkazuz
+main: br.alkazuz.vip.main.Main
+version: 0.1
+depend: [Vault, iDisguise]
+commands:
