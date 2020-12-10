@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +22,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import br.alkazuz.arena.api.ActionBarAPI;
-import br.alkazuz.arena.api.TagAPI;
 import br.alkazuz.arena.data.PlayerData;
 import br.alkazuz.arena.data.PlayerManager;
 import br.alkazuz.arena.main.Main;
@@ -63,7 +63,6 @@ public class Arena
             this.startGame();
             this.startTask();
         }
-        TagAPI.apply("", player);
         final ArenaPlayer dp = new ArenaPlayer();
         dp.nick = player.getName();
         GameManager.playing.put(player.getName(), this);
@@ -76,7 +75,6 @@ public class Arena
             @Override
             public void run() {
             	player.teleport(spawn);
-            	TagAPI.apply("", player);
             }
         }, 2L);
         
@@ -142,7 +140,7 @@ public class Arena
                     GameManager.sendToLobby(p);
                 }
             }
-        }, 40L);
+        }, 10L);
         Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
             @Override
             public void run() {
@@ -183,7 +181,8 @@ public class Arena
     public void startTask() {
         final FileConfiguration config = Main.theInstance().config;
         this.task = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
-            @Override
+            @SuppressWarnings("unlikely-arg-type")
+			@Override
             public void run() {
                 final List<Player> all = Arena.this.getPlayers();
                 if (all.size() == 0) {
@@ -196,10 +195,9 @@ public class Arena
                 for (final Player p : all) {
                 	ActionBarAPI.sendActionBar(p, bossBarFormat);
                 }
-                if (Arena.this.timer <= 0 && Arena.this.players.size() > 1) {
+                if (Arena.this.timer <= 0 && Arena.this.players.size() > 0) {
                     for (final Player p : all) {
-                        final PlayerData fromNick;
-                        final PlayerData pd = fromNick = PlayerManager.fromNick(p.getName());
+                        final PlayerData fromNick = PlayerManager.fromNick(p.getName());
                         ++fromNick.partidas;
                     }
                     final List<ArenaPlayer> keys = new ArrayList<ArenaPlayer>(Arena.this.players.values());
@@ -219,7 +217,7 @@ public class Arena
                     final int premio = config.getInt("configuration.money-on-win");
                     Main.theInstance().economy.depositPlayer((OfflinePlayer)wP, (double)premio);
                     if (wP != null) {
-                        wP.sendMessage(config.getString("messages.win.other").replace("&", "§").replace("{0}", String.valueOf(premio)));
+                        wP.sendMessage(config.getString("messages.win.you").replace("&", "§").replace("{0}", String.valueOf(premio)));
                     }
                     Arena.this.broadcast(config.getString("messages.win.other").replace("&", "§").replace("{0}", pd.nick));
                     for (final Player p2 : all) {
