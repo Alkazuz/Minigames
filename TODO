@@ -5,8 +5,8 @@ Frog:
 - Cancelar a partida que estiver em um mundo que estiver alguma coisa rodando ✅
 
 Buildbattle:
-- Arrumar troca de chao (cancelando ao clicar no inv player)
-- Arrumar bug quando player kitar não sincronizar a fila
+- Arrumar troca de chao (cancelando ao clicar no inv player) ✅
+- Arrumar bug quando player kitar não sincronizar a fila ✅
 
 Detetive:
 - Remover interação com balde
