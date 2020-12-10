@@ -549,7 +549,10 @@ public class Round implements Listener
             Player player = (Player)event.getEntity();
             
             if (this.hasPlayer(player) && this.hasPlayer(damager)) {
-            	if(player.getLocation().distance(damager.getLocation()) > 1.5D) return;
+            	if(player.getLocation().distance(damager.getLocation()) > 1.5D) {
+            		event.setCancelled(true);
+                    return;
+            	}
                 DetetivePlayer dp = this.players.get(damager);
                 DetetivePlayer dpDamaged = this.players.get(player);
                 if (dpDamaged == null) {
