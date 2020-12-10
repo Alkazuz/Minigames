@@ -10,3 +10,13 @@ Buildbattle:
 
 Detetive:
 - Remover interação com balde
+
+Skywars:
+- Corrigir partidas duplicadas em mesmo mapa
+- Arrumar itens dos baús
+- Fazer itens do feast
+- Adicionar kill streak, DOUBLE-KILL, TRIPLE-KILL, etc...
+- Cair no void e morrer
+- Fazer as eliminações
+- Adicionar quantidade de kills na scoreboard
+- Finalizar a partida
