@@ -1,6 +1,9 @@
 Arena:
 - Arrumar bug de nao finalizar quando tiver só com um jogador
 
+Frog:
+- Cancelar a partida que estiver em um mundo que estiver alguma coisa rodando ✅
+
 Buildbattle:
 - Arrumar troca de chao (cancelando ao clicar no inv player)
 - Arrumar bug quando player kitar não sincronizar a fila
