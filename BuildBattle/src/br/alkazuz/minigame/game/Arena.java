@@ -15,6 +15,7 @@ public class Arena {
 	public int points = 0;
 	public List<Location> floor = new ArrayList<Location>();
 	public Block floorBlock;
+	public boolean voted = false;
 	
 	public Arena(Player owner, Location spawn) {
 		this.owner = owner;

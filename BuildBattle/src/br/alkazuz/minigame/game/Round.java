@@ -119,7 +119,7 @@ public class Round implements Listener
                 }
             }
         }
-    	//System.out.println("Mundo invÃ¡lido");
+    	//System.out.println("Mundo inválido");
     	return false;
     }
     
@@ -159,19 +159,28 @@ public class Round implements Listener
 		Main.theInstance().rounds.remove(this);
     }
     
-    public int index = 0;
+    public Arena next() {
+    	Iterator<Arena> iterator = players.values().iterator();
+    	while(iterator.hasNext()) {
+    		Arena arena = iterator.next();
+    		if(!arena.voted) return arena;
+    	}
+    	return null;
+    }
     public void nextArena() {
     	state = RoundState.VOTING;
     	if(arenaVote != null) {
     		for(Player p : players.keySet()) {
     			arenaVote.points += voteArena.get(p).points;
+    			arenaVote.voted = true;
     		}
     	}
     	voteArena.clear();
     	Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
             @Override
             public void run() {
-            	if(index >= players.size()) {
+            	Arena next = next();
+            	if(next == null) {
             		state = RoundState.ENDING;
             		return;
             	}
@@ -186,13 +195,12 @@ public class Round implements Listener
         			
         		}
             	counter.timer = 25;
-            	arenaVote = new ArrayList<Arena>(players.values()).get(index);
+            	arenaVote = next;
             	for(Player p : players.keySet()) {
             		p.teleport(arenaVote.randomLocationSpawn());
-            		p.sendMessage("Â§eConstruÃ§Ã£o de Â§e"+arenaVote.owner.getName()+"Â§e. O que vocÃª achou desta construÃ§Ã£o?");
+            		p.sendMessage("§eConstrução de §e"+arenaVote.owner.getName()+"§e. O que você achou desta construção?");
             		voteArena.put(p, Vote.NENHUM);
             	}
-            	index++;
             	Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
                     @Override
                     public void run() {
@@ -214,23 +222,23 @@ public class Round implements Listener
     	if (this.state == RoundState.VOTING) {
     		for(Player p : players.keySet()) {
     			if (this.counter.timer == 5) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§65", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§65", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 4) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§64", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§64", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 3) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§e3", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§e3", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 2) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§c2", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§c2", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 1) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§41", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§41", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
     		}
@@ -257,16 +265,16 @@ public class Round implements Listener
             }
             StringBuilder sb = new StringBuilder();
             sb.append("\n");
-            sb.append(" Â§6Â§lBUILDBATTLE Â§f- Vencedor(es)\n");
+            sb.append(" §6§lBUILDBATTLE §f- Vencedor(es)\n");
             sb.append("\n");
-            sb.append(" Â§bÂ§l1Â° lugar Â§f- "+winner1.getName()+" Â§e"+players.get(winner1).points+" pts.\n");
+            sb.append(" §b§l1° lugar §f- "+winner1.getName()+" §e"+players.get(winner1).points+" pts.\n");
             if(winner2 != null) {
-            	sb.append(" Â§6Â§l2Â° lugar Â§f- "+winner2.getName()+" Â§e"+players.get(winner2).points+" pts.\n");
+            	sb.append(" §6§l2° lugar §f- "+winner2.getName()+" §e"+players.get(winner2).points+" pts.\n");
             	Main.theInstance().economy.depositPlayer(winner2, MinigameConfig.MONEY_SECOND);
             	
             }
             if(winner3 != null) {
-            	sb.append(" Â§eÂ§l3Â° lugar Â§f- "+winner3.getName()+" Â§e"+players.get(winner3).points+" pts.\n");
+            	sb.append(" §e§l3° lugar §f- "+winner3.getName()+" §e"+players.get(winner3).points+" pts.\n");
             	Main.theInstance().economy.depositPlayer(winner3, MinigameConfig.MONEY_TREE);
             }
             sb.append("\n");
@@ -322,7 +330,7 @@ public class Round implements Listener
     			state = RoundState.VOTING;
     			for(Player p : players.keySet()) {
     				
-    				TitleAPI.sendTitle(p, 0, 20, 0, "", "Â§cTEMPO ESGOTADO!");
+    				TitleAPI.sendTitle(p, 0, 20, 0, "", "§cTEMPO ESGOTADO!");
     				p.playSound(p.getLocation(), Sound.ANVIL_LAND, 5.0f, 5.0f);
     				p.setGameMode(GameMode.SURVIVAL);
     				p.setAllowFlight(true);
@@ -333,7 +341,7 @@ public class Round implements Listener
     				p.getInventory().setLeggings(null);
     				p.getInventory().setBoots(null);
     				p.getInventory().setItem(8, ShopMenu.vip);
-    				p.sendMessage("Â§eVocÃª serÃ¡ teleportado para votaÃ§Ã£o em breve.");
+    				p.sendMessage("§eVocê será teleportado para votação em breve.");
     			}
     			nextArena();
     			return;
@@ -342,37 +350,37 @@ public class Round implements Listener
             for(Player p : players.keySet()) {
        		 	ActionBarAPI.sendActionBar(p, msg);
        		 	if (this.counter.timer % 60 == 0) {
-       		 		TitleAPI.sendTitle(p, 20, 10, 20, "Â§bRestam", "Â§e"+Methods.getRemainingTime2("", counter.timer));
+       		 		TitleAPI.sendTitle(p, 20, 10, 20, "§bRestam", "§e"+Methods.getRemainingTime2("", counter.timer));
        		 		p.playSound(p.getLocation(), Sound.NOTE_BASS, 1.0f, 1.0f);
        		 	}
        		 	
        		 	if (this.counter.timer == 30) {
-    		 		TitleAPI.sendTitle(p, 20, 10, 20, "Â§bRestam", "Â§e30s");
+    		 		TitleAPI.sendTitle(p, 20, 10, 20, "§bRestam", "§e30s");
     		 		p.playSound(p.getLocation(), Sound.NOTE_BASS, 1.0f, 1.0f);
     		 	}
        		 	if (this.counter.timer == 15) {
-       		 		TitleAPI.sendTitle(p, 20, 10, 20, "Â§bRestam", "Â§e15s");
+       		 		TitleAPI.sendTitle(p, 20, 10, 20, "§bRestam", "§e15s");
        		 		p.playSound(p.getLocation(), Sound.NOTE_BASS, 1.0f, 1.0f);
        		 	}
        		 		
        		 	if (this.counter.timer == 5) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§65", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§65", "");
        		 	p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 4) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§64", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§64", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 3) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§e3", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§e3", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 2) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§c2", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§c2", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
        		 	if (this.counter.timer == 1) {
-       		 		TitleAPI.sendTitle(p, 0, 19, 0, "Â§41", "");
+       		 		TitleAPI.sendTitle(p, 0, 19, 0, "§41", "");
        		 		p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
        		 	}
            }
@@ -389,19 +397,19 @@ public class Round implements Listener
               		 ActionBarAPI.sendActionBar(p, msg);
                        if (this.counter.timer <= 5 && MinigameConfig.COUNTER) {
                            if (this.counter.timer == 5) {
-                               TitleAPI.sendTitle(p, 0, 19, 0, "Â§65", "");
+                               TitleAPI.sendTitle(p, 0, 19, 0, "§65", "");
                            }
                            if (this.counter.timer == 4) {
-                               TitleAPI.sendTitle(p, 0, 19, 0, "Â§64", "");
+                               TitleAPI.sendTitle(p, 0, 19, 0, "§64", "");
                            }
                            if (this.counter.timer == 3) {
-                               TitleAPI.sendTitle(p, 0, 19, 0, "Â§e3", "");
+                               TitleAPI.sendTitle(p, 0, 19, 0, "§e3", "");
                            }
                            if (this.counter.timer == 2) {
-                               TitleAPI.sendTitle(p, 0, 19, 0, "Â§c2", "");
+                               TitleAPI.sendTitle(p, 0, 19, 0, "§c2", "");
                            }
                            if (this.counter.timer == 1) {
-                               TitleAPI.sendTitle(p, 0, 19, 0, "Â§41", "");
+                               TitleAPI.sendTitle(p, 0, 19, 0, "§41", "");
                            }
                            p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                        }
@@ -429,19 +437,19 @@ public class Round implements Listener
                 
                 if (this.counter.timer <= 5 && this.counter.starting) {
                     if (this.counter.timer == 5) {
-                        TitleAPI.sendTitle(p2, 0, 19, 0, "Â§65", "");
+                        TitleAPI.sendTitle(p2, 0, 19, 0, "§65", "");
                     }
                     if (this.counter.timer == 4) {
-                        TitleAPI.sendTitle(p2, 0, 19, 0, "Â§64", "");
+                        TitleAPI.sendTitle(p2, 0, 19, 0, "§64", "");
                     }
                     if (this.counter.timer == 3) {
-                        TitleAPI.sendTitle(p2, 0, 19, 0, "Â§e3", "");
+                        TitleAPI.sendTitle(p2, 0, 19, 0, "§e3", "");
                     }
                     if (this.counter.timer == 2) {
-                        TitleAPI.sendTitle(p2, 0, 19, 0, "Â§c2", "");
+                        TitleAPI.sendTitle(p2, 0, 19, 0, "§c2", "");
                     }
                     if (this.counter.timer == 1) {
-                        TitleAPI.sendTitle(p2, 0, 19, 0, "Â§41", "");
+                        TitleAPI.sendTitle(p2, 0, 19, 0, "§41", "");
                     }
                     p2.playSound(p2.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                 }
@@ -514,7 +522,7 @@ public class Round implements Listener
                     p.sendMessage(n.replace("{0}", String.valueOf(MinigameConfig.MONEY_FIRST)));
                 }
                 p.playSound(p.getLocation(), Sound.NOTE_BASS_DRUM, 1f, 1f);
-                TitleAPI.sendTitle(p, 0, 40, 0, "Â§eEscolhendo tema...", "Â§bÂ§kabcdefghi");
+                TitleAPI.sendTitle(p, 0, 40, 0, "§eEscolhendo tema...", "§b§kabcdefghi");
             }
             theme = Themes.themes.get(themeCategory).get(new Random().nextInt(Themes.themes.get(themeCategory).size()));
             Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
@@ -525,7 +533,7 @@ public class Round implements Listener
                     for (Player all : players.keySet()) {
                         all.setGameMode(GameMode.CREATIVE);
                         all.getInventory().setItem(7, UtilsMenu.util);
-                        TitleAPI.sendTitle(all, 0, 40, 0, "Â§eTema escolhido", "Â§b"+theme);
+                        TitleAPI.sendTitle(all, 0, 40, 0, "§eTema escolhido", "§b"+theme);
                         ScoreBoard.createScoreBoard(all, Round.this);
                         PlayerData data = PlayerManager.fromNick(all.getName());
                         ScoreBoard.updateScoreBoard(all, Round.this, data);
@@ -556,15 +564,15 @@ public class Round implements Listener
         PlayerData data= PlayerManager.fromNick(p.getName());
     	if(data.getRank() == 1) {
     		broadcast(" ");
-    		broadcast("Â§6Â§l[RANKING] Â§6"+p.getName()+" Â§6Ã© TOP 1 neste minigame e estÃ¡ nessa sala!!");
+    		broadcast("§6§l[RANKING] §6"+p.getName()+" §6é TOP 1 neste minigame e está nessa sala!!");
     		broadcast(" ");
     	}else if(data.getRank() == 2){
     		broadcast(" ");
-    		broadcast("Â§bÂ§l[RANKING] Â§b"+p.getName()+" Â§bÃ© TOP 2 neste minigame e estÃ¡ nessa sala!!");
+    		broadcast("§b§l[RANKING] §b"+p.getName()+" §bé TOP 2 neste minigame e está nessa sala!!");
     		broadcast(" ");
     	}else if(data.getRank() == 3){
     		broadcast(" ");
-    		broadcast("Â§eÂ§l[RANKING] Â§e"+p.getName()+" Â§eÃ© TOP 3 neste minigame e estÃ¡ nessa sala!!");
+    		broadcast("§e§l[RANKING] §e"+p.getName()+" §eé TOP 3 neste minigame e está nessa sala!!");
     		broadcast(" ");
     	}
         
@@ -664,11 +672,11 @@ public class Round implements Listener
     				Vote vote = Vote.byData(item.getDurability());
     				if(vote != null) {
     					if(arenaVote == players.get(p)) {
-    						p.sendMessage("Â§cVocÃª nÃ£o pode votar na sua prÃ³pria construÃ§Ã£o.");
+    						p.sendMessage("§cVocê não pode votar na sua própria construção.");
     						event.setCancelled(true);
     						return;
     					}
-    					p.sendMessage("Â§aVocÃª votou "+vote.nome + " Â§anesta construÃ§Ã£o.");
+    					p.sendMessage("§aVocê votou "+vote.nome + " §anesta construção.");
     					voteArena.put(p, vote);
     					event.setCancelled(true);
     				}
@@ -685,14 +693,14 @@ public class Round implements Listener
     			if(event.getTo().getY() >= 58D) {
     				Arena arena = players.get(p);
     				p.teleport(arena.spawn);
-    				p.sendMessage("Â§cVocÃª nÃ£o pode sair da sua arena.");
+    				p.sendMessage("§cVocê não pode sair da sua arena.");
     			}
     		}
     		
     		else if(state != RoundState.AVAILABLE && arenaVote != null){
     			if(event.getTo().getY() >= 58D) {
     				p.teleport(arenaVote.randomLocationSpawn());
-    				p.sendMessage("Â§cVocÃª nÃ£o pode sair da arena que estÃ¡ sendo votada!");
+    				p.sendMessage("§cVocê não pode sair da arena que está sendo votada!");
     			}
     		}
     		
@@ -729,11 +737,11 @@ public class Round implements Listener
     
     public enum Vote {
     	NENHUM("", (short)0, 0),
-    	PESSIMO("Â§4PÃ©ssimo", (short)4, 1),
-    	RUIM("Â§cRuim", (short)6, 2),
-    	OK("Â§eOK", (short)4, 3),
-    	BOM("Â§aBom", (short)5, 4),
-    	LENDARIO("Â§6LendÃ¡rio", (short)1, 5);
+    	PESSIMO("§4Péssimo", (short)4, 1),
+    	RUIM("§cRuim", (short)6, 2),
+    	OK("§eOK", (short)4, 3),
+    	BOM("§aBom", (short)5, 4),
+    	LENDARIO("§6Lendário", (short)1, 5);
     	public String nome;
     	public short data;
     	public int points;
