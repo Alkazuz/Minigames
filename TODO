@@ -1,0 +1,9 @@
+Arena:
+- Arrumar bug de nao finalizar quando tiver só com um jogador
+
+Buildbattle:
+- Arrumar troca de chao (cancelando ao clicar no inv player)
+- Arrumar bug quando player kitar não sincronizar a fila
+
+Detetive:
+- Remover interação com balde
