@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import br.alkazuz.minigame.game.Arena;
 import br.alkazuz.minigame.game.Round;
@@ -34,7 +35,7 @@ public class UtilsListener implements Listener
         Player p = (Player)event.getWhoClicked();
         int slot = event.getSlot();
         if (event.getInventory().getTitle().equals("Utilidades")) {
-        	if(event.getInventory() == p.getInventory()) return;
+        	if(event.getInventory() instanceof PlayerInventory) return;
         	event.setCancelled(true);
             for (Round r : Main.theInstance().rounds) {
                 if (r.hasPlayer(p)) {
