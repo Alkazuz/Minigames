@@ -22,6 +22,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -534,11 +535,21 @@ public class Round implements Listener
     }
     
     @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+    	Player player = event.getPlayer();
+    	if (this.hasPlayer(player) && player.getItemInHand() != null && player.getItemInHand().getType() == Material.BUCKET) {
+    		event.setCancelled(true);
+    	}
+    }
+    
+    @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             Player damager = (Player)event.getDamager();
             Player player = (Player)event.getEntity();
+            
             if (this.hasPlayer(player) && this.hasPlayer(damager)) {
+            	if(player.getLocation().distance(damager.getLocation()) > 1.5D) return;
                 DetetivePlayer dp = this.players.get(damager);
                 DetetivePlayer dpDamaged = this.players.get(player);
                 if (dpDamaged == null) {
@@ -562,6 +573,7 @@ public class Round implements Listener
                 this.broadcast(MinigameConfig.KILLED.replace("{0}", player.getName()));
                 PlayerData fromNick = PlayerManager.fromNick(player.getName());
                 ++fromNick.losesAsVictim;
+                player.getLocation().getWorld().playSound(player.getLocation(), Sound.HURT_FLESH, 1.0f, 1.0f);
                 player.sendMessage(MinigameConfig.lose);
                 this.removePlayer(player);
             }
