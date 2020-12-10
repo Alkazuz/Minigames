@@ -1,5 +1,5 @@
 Arena:
-- Arrumar bug de nao finalizar quando tiver só com um jogador
+- Arrumar bug de nao finalizar quando tiver só com um jogador ✅
 
 Frog:
 - Cancelar a partida que estiver em um mundo que estiver alguma coisa rodando ✅
@@ -10,3 +10,13 @@ Buildbattle:
 
 Detetive:
 - Remover interação com balde
+
+Skywars:
+- Corrigir partidas duplicadas em mesmo mapa
+- Arrumar itens dos baús
+- Fazer itens do feast
+- Adicionar kill streak, DOUBLE-KILL, TRIPLE-KILL, etc...
+- Cair no void e morrer
+- Fazer as eliminações
+- Adicionar quantidade de kills na scoreboard
+- Finalizar a partida
