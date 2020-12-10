@@ -1,9 +1,15 @@
 package br.alkazuz.arena.sql;
 
-import java.sql.*;
-import br.alkazuz.arena.data.*;
-import com.google.gson.*;
-import org.bukkit.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+
+import org.bukkit.Bukkit;
+
+import com.google.gson.Gson;
+
+import br.alkazuz.arena.data.PlayerData;
+import br.alkazuz.arena.game.MinigameConfig;
 
 public class SQLData
 {
@@ -12,7 +18,7 @@ public class SQLData
     
     public static void CriarTabela() {
         try {
-            final PreparedStatement ps = SQLData.con.prepareStatement("CREATE TABLE IF NOT EXISTS `users` (`nick` VARCHAR(35) NULL,`object` TEXT NOT NULL);");
+            final PreparedStatement ps = SQLData.con.prepareStatement("CREATE TABLE IF NOT EXISTS `"+MinigameConfig.NAME.toLowerCase()+"_data` (`nick` VARCHAR(35) NULL,`object` TEXT NOT NULL);");
             ps.executeUpdate();
         }
         catch (Exception ex) {
