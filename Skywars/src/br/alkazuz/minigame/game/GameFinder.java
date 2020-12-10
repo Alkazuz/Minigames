@@ -16,7 +16,7 @@ public class GameFinder{
 	private static Round round;
 	int delay = 0;
 	public void update() {
-		if(main.rounds.size() == 0 && delay < 6) {
+		if(main.rounds.size() == 0 && delay < 5) {
 			if(delay < 5) {
 				main.createRound(null);
 			}
