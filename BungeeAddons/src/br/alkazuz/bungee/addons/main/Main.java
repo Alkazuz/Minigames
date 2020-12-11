@@ -54,7 +54,7 @@ public class Main extends Plugin
             public void run() {
     			BungeeGroupManager.groups.clear();
     			try {
-    				PreparedStatement ps = MySQLConnection.con.prepareStatement("SELECT * FROM '"+BungeeConfig.GROUP_TABLE+"' ORDER BY priority DESC");
+    				PreparedStatement ps = MySQLConnection.con.prepareStatement("SELECT * FROM "+BungeeConfig.GROUP_TABLE+" ORDER BY priority DESC");
                     final ResultSet rs = ps.executeQuery();
                     while (rs.next())
                     {

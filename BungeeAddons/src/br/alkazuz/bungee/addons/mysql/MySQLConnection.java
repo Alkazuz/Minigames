@@ -29,7 +29,7 @@ public class MySQLConnection {
 			con = msql.openConnection();
 			statement = con.createStatement();
 			BungeeGroupManager.groups.clear();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM '"+BungeeConfig.GROUP_TABLE+"' ORDER BY priority DESC");
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+BungeeConfig.GROUP_TABLE+" ORDER BY priority DESC");
             final ResultSet rs = ps.executeQuery();
             while (rs.next())
             {
