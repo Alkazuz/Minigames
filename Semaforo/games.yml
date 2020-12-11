@@ -1,0 +1,7 @@
+levels:
+-
+    world_name: Vini012
+    spawn_pos: -606;52;828
+    start_wall_bb: -601,54,820,-601,52,836
+    end_wall_bb: -475,54,820,-475,52,836
+    finish_region_bb: -474,51,837,-467,60,819
