@@ -1,0 +1,39 @@
+SQL:
+  MySQL: false
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+configuration:
+  start-time: 300
+  min-players: 5
+  money: 15
+messages:
+  death: '&c{0} perdeu!'
+  welcome:
+  - '&f» Você está no &6Semaforo&f / Online aqui: &a{0}'
+  - '&f» Para abrir a loja use: &9/loja'
+  - '&f» Para voltar ao lobby principal: &9/spawn'
+  game-start:
+    message: 
+    - ''
+    - '&3[Semaforo] &bIniciando a rodada!!'
+    - '&3[PRÊMIO] &bPrêmio deste minigame: &a{0} &bcoins!'
+    - ''
+  lose: 
+    you: '&c&lVOCÊ PERDEU A PARTIDA :('
+    other: '&3{0} &cavançou o sinal vermelho!'
+  shop:
+    vip: '&6{0} &bé VIP e pegou um item grátis na loja!'
+    normal: '&6{0} &bcomprou um item por &6{1} &bcoin(s) na loja!'
+  win:
+    you: '&2Você ganhou: {0} coin(s)%n%&6&lVOCÊ VENCEU A PARTIDA!'
+    other: '&6{0} venceu!'
+  starting:
+    with-players: '&bIniciando a rodada em: &a{0} &bsegundo(s)!'
+    without-players: '&bFaltam &c{0} &bjogadores ou &e{1} &bsegundos para começar!'
+  light-green: "&a▲ AVANÇAR! ▲"
+  light-yellow: "&e■ ATENÇÃO! ■"
+  light-red: "&c✖ PARE! ✖"
+  use-second-chance: "&cVocê avançou o sinal vermelho e usou sua segunda chance."
