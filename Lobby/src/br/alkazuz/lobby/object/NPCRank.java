@@ -80,11 +80,9 @@ public class NPCRank
     	String nick = clazz.nick.replace("\"", "");
     	int wins = clazz.winTotal;
     	String prefix = Main.theInstance().getPrefix(nick);
-        if (this.npc != null) {
-            this.npc.despawn();
-            this.npc.destroy();
+        if (this.npc == null) {
+        	npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, UUID.randomUUID(), nick.length() + this.pos, "");
         }
-        this.npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, UUID.randomUUID(), nick.length() + this.pos, "");
         this.npc.data().set("player-skin-name", nick);
         try {
             this.npc.data().set("nameplate-visible", (Object)false);
