@@ -35,7 +35,7 @@ public class UtilsListener implements Listener
         Player p = (Player)event.getWhoClicked();
         int slot = event.getSlot();
         if (event.getInventory().getTitle().equals("Utilidades")) {
-        	if(event.getInventory() instanceof PlayerInventory) return;
+        	if(event.getClickedInventory() instanceof PlayerInventory) return;
         	event.setCancelled(true);
             for (Round r : Main.theInstance().rounds) {
                 if (r.hasPlayer(p)) {
