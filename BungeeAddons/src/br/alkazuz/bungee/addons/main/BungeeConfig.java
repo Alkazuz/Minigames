@@ -12,6 +12,8 @@ public class BungeeConfig {
 	
 	public static boolean MAINTENANCE;
 	public static String MAINTENANCE_ERROR;
+	public static String GROUP_TABLE;
+	public static String GROUP_DEFAULT;
 	public static List<String> MAINTENANCE_USERS;
 	public static Main main;
 	public static void load(Main main) {
@@ -19,6 +21,8 @@ public class BungeeConfig {
 		MAINTENANCE = main.configuration.getBoolean("maintenance.enabled");
 		MAINTENANCE_ERROR = main.configuration.getString("maintenance.error").replace("&", "§").replace("%n%", "\n");
 		MAINTENANCE_USERS = main.configuration.getStringList("maintenance.users");
+		GROUP_TABLE = main.configuration.getString("SQL.tags-table");
+		GROUP_DEFAULT = main.configuration.getString("groups.default-group");
 	}
 	
 	public static void save() {
