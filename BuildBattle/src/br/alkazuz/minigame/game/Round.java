@@ -290,7 +290,7 @@ public class Round implements Listener
                 public void run() {
                     if(delayd >= 5) {
                     	this.cancel();
-                    	Iterator<Player> iterator = players.keySet().iterator();
+                    	Iterator<Player> iterator = new ArrayList<Player>(players.keySet()).iterator();
                     	while(iterator.hasNext()) {
                     		try {
                     			Player p = iterator.next();
@@ -311,7 +311,13 @@ public class Round implements Listener
                     	return;
                     }
                     if(winner1.isOnline()) {
-                    	winner1.getLocation().getWorld().spawnEntity(winner1.getLocation(), EntityType.FIREWORK);
+                    	Entity e = winner1.getLocation().getWorld().spawnEntity(winner1.getLocation(), EntityType.FIREWORK);
+                    	Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                            @Override
+                            public void run() {
+                            	e.remove();
+                            }
+                        }, 20L);
                     }
                     delayd++;
                 }
@@ -398,20 +404,25 @@ public class Round implements Listener
                        if (this.counter.timer <= 5 && MinigameConfig.COUNTER) {
                            if (this.counter.timer == 5) {
                                TitleAPI.sendTitle(p, 0, 19, 0, "§65", "");
+                               p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                            }
                            if (this.counter.timer == 4) {
                                TitleAPI.sendTitle(p, 0, 19, 0, "§64", "");
+                               p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                            }
                            if (this.counter.timer == 3) {
                                TitleAPI.sendTitle(p, 0, 19, 0, "§e3", "");
+                               p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                            }
                            if (this.counter.timer == 2) {
                                TitleAPI.sendTitle(p, 0, 19, 0, "§c2", "");
+                               p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                            }
                            if (this.counter.timer == 1) {
                                TitleAPI.sendTitle(p, 0, 19, 0, "§41", "");
+                               p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                            }
-                           p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
+                           
                        }
                    }
             }
@@ -737,12 +748,12 @@ public class Round implements Listener
     
     public enum Vote {
     	NENHUM("", (short)0, 0),
-    	PESSIMO("§4Péssimo", (short)4, 1),
-    	RUIM("§cRuim", (short)6, 2),
+    	PESSIMO("§4Péssimo", (short)15, 1),
+    	RUIM("§cRuim", (short)14, 2),
     	OK("§eOK", (short)4, 3),
     	BOM("§aBom", (short)5, 4),
     	LENDARIO("§6Lendário", (short)1, 5);
-    	public String nome;
+    	public String nome;		
     	public short data;
     	public int points;
 	    Vote(String nome, short data, int points) {
