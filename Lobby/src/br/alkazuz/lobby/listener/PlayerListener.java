@@ -224,8 +224,26 @@ public class PlayerListener implements Listener
                     }
                     ScoreBoard.createScoreBoardMinigames(p, servidor);
                     ScoreBoard.updateScoreboardMinigame(p, servidor);
+                    for(Player all : Bukkit.getOnlinePlayers()) {
+           			 if(QueueAPI.lobby.containsKey(all.getName()) && QueueAPI.lobby.get(all.getName()) == servidor) {
+           				 all.showPlayer(p);
+           				 p.showPlayer(all);
+           			 }else {
+           				 all.hidePlayer(p);
+           				 p.hidePlayer(all);
+           			 }
+           		 }
                 }else {
                 	ScoreBoard.createScoreBoard(p);
+                	for(Player all : Bukkit.getOnlinePlayers()) {
+           			 if(!QueueAPI.lobby.containsKey(all.getName())) {
+           				 all.showPlayer(p);
+           				 p.showPlayer(all);
+           			 }else {
+           				 all.hidePlayer(p);
+           				 p.hidePlayer(all);
+           			 }
+           		 }
                 }
             }
         }, 2L);

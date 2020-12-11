@@ -32,6 +32,15 @@ public class CommandListener implements Listener
         		p.teleport(world.getSpawnLocation());
         		 event.setCancelled(true);
         		 ScoreBoard.createScoreBoard(p);
+        		 for(Player all : Bukkit.getOnlinePlayers()) {
+        			 if(!QueueAPI.lobby.containsKey(all.getName())) {
+        				 all.showPlayer(p);
+        				 p.showPlayer(all);
+        			 }else {
+        				 all.hidePlayer(p);
+        				 p.hidePlayer(all);
+        			 }
+        		 }
         		 return;
         	}
         }
