@@ -82,13 +82,13 @@ public class NPCRank
     	String prefix = Main.theInstance().getPrefix(nick);
         if (this.npc == null) {
         	npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, UUID.randomUUID(), nick.length() + this.pos, "");
+        	npc.spawn(location);
         }
         this.npc.data().set("player-skin-name", nick);
         try {
             this.npc.data().set("nameplate-visible", (Object)false);
         }
         catch (Exception ex) {}
-        this.npc.spawn(location);
         if (this.hologram != null) {
             this.hologram.delete();
         }

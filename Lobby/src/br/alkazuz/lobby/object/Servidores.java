@@ -41,6 +41,17 @@ public class Servidores
             if (config.get("servers." + key + ".lobby") != null) {
                 servidor.lobby = Methods.decodeLocation(config.getString("servers." + key + ".lobby"));
             }
+            
+            if (config.get("servers." + key + ".npcskin") != null) {
+            	servidor.npcSkin = config.getString("servers." + key + ".npcskin");
+            }
+            if (config.get("servers." + key + ".npc") != null) {
+            	Location loc = Methods.decodeLocation(config.getString("servers." + key + ".npc"));
+            	servidor.npcLocation = loc;
+            	NPCServidor npcserver = new NPCServidor(loc, servidor);
+            	npcserver.createOrUpdate();
+            	servidor.npc = npcserver;
+            }
             if (config.get("servers." + key + ".npcs") != null) {
             	for (String top : config.getConfigurationSection("servers." + key + ".npcs").getKeys(false)) {
             		Location loc = Methods.decodeLocation(config.getString("servers." + key + ".npcs."+top));

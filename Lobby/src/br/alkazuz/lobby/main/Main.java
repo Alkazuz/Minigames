@@ -24,6 +24,7 @@ import br.alkazuz.lobby.command.CommandGlobal;
 import br.alkazuz.lobby.command.CommandReiniciar;
 import br.alkazuz.lobby.command.CommandSetLobby;
 import br.alkazuz.lobby.command.CommandSetNPC;
+import br.alkazuz.lobby.command.CommandSetNPCServer;
 import br.alkazuz.lobby.listener.CommandListener;
 import br.alkazuz.lobby.listener.PlayerListener;
 import br.alkazuz.lobby.object.NPCRank;
@@ -66,6 +67,12 @@ public class Main extends JavaPlugin implements PluginMessageListener, Runnable
     public void onDisable() {
     	
     	for(Servidor servidor : Servidores.servidores) {
+    		if(servidor.npc != null) {
+    			servidor.npc.delete();
+    			System.out.println(servidor.flatName + " npc deletado");
+    		}
+    	}
+    	for(Servidor servidor : Servidores.servidores) {
     		if(servidor.ranks.isEmpty()) continue;
     		for(Location loc : servidor.ranks.keySet()) {
     			NPCRank npc = servidor.ranks.get(loc);
@@ -86,10 +93,16 @@ public class Main extends JavaPlugin implements PluginMessageListener, Runnable
     }
     
     public void onEnable() {
+        while(CitizensAPI.getNPCRegistry().iterator().hasNext()) {
+    		NPC dd = CitizensAPI.getNPCRegistry().iterator().next();
+    		dd.despawn();
+    		dd.destroy();
+    	}
         Main.instance = this;
         this.config = ConfigManager.getConfig("config");
         this.getCommand("setlobby").setExecutor(new CommandSetLobby());
         this.getCommand("setnpc").setExecutor(new CommandSetNPC());
+        this.getCommand("setnpcserver").setExecutor(new CommandSetNPCServer());
         this.getCommand("g").setExecutor(new CommandGlobal());
         this.getCommand("reini").setExecutor(new CommandReiniciar());
         Bukkit.getServer().getPluginManager().registerEvents((Listener)new CommandListener(), (Plugin)this);
@@ -118,14 +131,14 @@ public class Main extends JavaPlugin implements PluginMessageListener, Runnable
             	AutoRestart.started = true;
             }
         });
-        while(CitizensAPI.getNPCRegistry().iterator().hasNext()) {
-    		NPC dd = CitizensAPI.getNPCRegistry().iterator().next();
-    		dd.despawn();
-    		dd.destroy();
-    	}
     }
     
     public void run() {
+    	for(Servidor s : Servidores.servidores) {
+    		if(s.npc != null) {
+    			s.npc.Update();
+    		}
+    	}
     	for(Player p : Bukkit.getOnlinePlayers()) {
     		if (QueueAPI.lobby.containsKey(p.getName())) {
                 Servidor servidor = QueueAPI.lobby.get(p.getName());

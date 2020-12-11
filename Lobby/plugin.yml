@@ -8,3 +8,4 @@ commands:
   setnpc:
   setlobby:
   reini:
+  setnpcserver:

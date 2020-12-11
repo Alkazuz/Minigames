@@ -36,6 +36,7 @@ import br.alkazuz.lobby.menu.Menus;
 import br.alkazuz.lobby.object.Servidor;
 import br.alkazuz.lobby.object.Servidores;
 import br.alkazuz.lobby.scoreboard.ScoreBoard;
+import net.citizensnpcs.api.event.NPCRightClickEvent;
 
 public class PlayerListener implements Listener
 {
@@ -55,6 +56,17 @@ public class PlayerListener implements Listener
     		e.setMotd("§aOnline");
     	}
     	
+    }
+    
+    @EventHandler
+    public void npc(NPCRightClickEvent event) {
+    	for(Servidor servidor : Servidores.servidores) {
+    		if(servidor.npc != null && servidor.npc.getNpc() == event.getNPC()) {
+    			event.getClicker().chat("/"+servidor.name);
+    			event.setCancelled(true);
+    			return;
+    		}
+    	}
     }
     
     @EventHandler

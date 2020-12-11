@@ -24,7 +24,10 @@ public class Servidor
     public AtomicInteger played;
     public Long lastStart;
     public HashMap<Location, NPCRank> ranks = new HashMap<Location, NPCRank>();
-    
+    public NPCServidor npc;
+	public String npcSkin;
+    public Location npcLocation;
+	
     public Servidor() {
         this.played = new AtomicInteger(0);
         this.lastStart = 0L;
