@@ -122,7 +122,7 @@ public class NPCServidor
           	}
         }
      	
-        hologram.appendTextLine(String.format("§eJogando agora: §b%d§e.", playing));
+        hologram.appendTextLine(String.format("§e%d conectado(s).", playing));
         hologram.appendTextLine("§a§lClique para conectar!");
     }
     
