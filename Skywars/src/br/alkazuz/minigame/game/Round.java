@@ -62,14 +62,10 @@ public class Round implements Listener
         this.timeLoaded = System.currentTimeMillis();
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)Main.theInstance());
         for(Location location : level.cages) {
-        	Arena arena = new Arena(location,this);
+        	Arena arena = new Arena(null, location,this);
         	arenas.add(arena);
         }
-        for(Round round : Main.theInstance().rounds) {
-        	if(round.level.startSpawn.getWorld().getName().equals(level.startSpawn.getWorld().getName())) {
-        		state = RoundState.FINISHED;
-    		}
-        }
+        
     }
 
     public void update() {
@@ -166,11 +162,7 @@ public class Round implements Listener
     public Arena emptyArena() {
     	for(Arena arena : arenas) {
     		if(players.size() == 0) return arena;
-    		for(SkywarsPlayer skywarsP : players.values()) {
-    			if(skywarsP.arena.spawn.distance(arena.spawn) >= 5.0D); {
-    				return arena;
-    			}
-    		}
+    		if(arena.player == null) return arena;
     	}
     	return null;
     }
@@ -184,6 +176,7 @@ public class Round implements Listener
     	p.setGameMode(GameMode.ADVENTURE);
         PlayerAPI.resetPlayer(p);
         this.players.put(p, new SkywarsPlayer(p.getName(), emptyArena()));
+        players.get(p).arena.player = p;
         for (Player all : Bukkit.getOnlinePlayers()) {
             all.hidePlayer(p);
             p.hidePlayer(all);
@@ -240,7 +233,9 @@ public class Round implements Listener
     }
     
     public boolean removePlayer(Player p) {
-        if (this.players.remove(p) != null) {
+        if (this.players.containsKey(p)) {
+        	players.get(p).arena.player=null;
+        	players.remove(p);
             PlayerData data = PlayerManager.fromNick(p.getName());
             data.save();
             this.removePlayerMD(p);

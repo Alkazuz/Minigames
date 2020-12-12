@@ -45,7 +45,6 @@ import br.alkazuz.minigame.game.LevelInfo;
 import br.alkazuz.minigame.game.MinigameConfig;
 import br.alkazuz.minigame.game.Round;
 import br.alkazuz.minigame.game.RoundLevel;
-import br.alkazuz.minigame.game.RoundState;
 import br.alkazuz.minigame.game.itens.SkywarsItens;
 import br.alkazuz.minigame.listener.MinigameListener;
 import br.alkazuz.minigame.scoreboard.ScoreBoard;
@@ -185,14 +184,6 @@ public class Main extends JavaPlugin implements Runnable
     	while(iterator.hasNext()) {
     		Round round = iterator.next();
     		round.update();
-    	}
-    	while(iterator.hasNext()) {
-    		Round round = iterator.next();
-    		if (round.state == RoundState.FINISHED) {
-                round.cleanUp();
-                this.createRound(round.level.world);
-                this.rounds.remove(round);
-            }
     	}
         if (System.currentTimeMillis() - MinigameConfig.STARTED >= TimeUnit.MINUTES.toMillis(30L)) {
             boolean canRestart = true;

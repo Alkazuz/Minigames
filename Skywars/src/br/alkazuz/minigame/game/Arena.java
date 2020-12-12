@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import br.alkazuz.minigame.game.itens.ItemInfoSky;
@@ -18,14 +19,16 @@ import br.alkazuz.minigame.utils.Utils;
 
 public class Arena {
 	
+	public Player player;
 	public Round round;
 	public Location spawn;
 	public Cage cage;
 	public List<Chest> chests = new ArrayList<Chest>();
 	
-	public Arena(Location spawn, Round round) {
+	public Arena(Player player,Location spawn, Round round) {
 		this.spawn = spawn;
 		this.round= round;
+		this.player = player;
 		this.spawn.setWorld(round.level.world);
 		this.cage = new Cage(spawn);
 		cage.build();
