@@ -81,12 +81,12 @@ public class PlayerListener implements Listener
         String msg = event.getMessage();
         String format = "§e[L] §f{0}§e: §e" + msg;
         if (p.hasPermission("minigames.staff")) {
-            format = "§e[L] §4[STAFF] §f{0}§e: §e" + msg;
+            format = "§e[L] §f{0}§e: §e" + msg;
         }
         else if (p.hasPermission("minigames.vip")) {
-            format = "§e[L] §6[VIP] §f{0}§e: §e" + msg;
+            format = "§e[L] §f{0}§e: §e" + msg;
         }
-        String send = format.replace("{0}", p.getName()).replace("{1}", msg.trim());
+        String send = format.replace("{0}", p.getDisplayName()).replace("{1}", msg.trim());
         p.sendMessage(send);
         for (Entity e : p.getNearbyEntities(30.0, 30.0, 30.0)) {
             if (e instanceof Player) {
