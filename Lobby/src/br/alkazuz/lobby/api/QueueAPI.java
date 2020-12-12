@@ -43,21 +43,6 @@ public class QueueAPI
                     
                     if (!ps.isOnline() && q.stream().filter(p -> queue.get(p) == servidor).count() > 0 && System.currentTimeMillis() - servidor.lastStart >= 60000L) {
                     	servidor.lastStart = System.currentTimeMillis();
-                        System.out.println("Matando screen do servidor "+servidor.flatName);
-                        String killScreen = String.format("sudo screen -ls \"%s\" | grep Detached | awk '{print $1}' | cut -f1 -d'.' | while read in; do screen -X -S $in quit; done ", servidor.flatName);
-                        
-                        try {
-                        	Process pb = Runtime.getRuntime().exec(killScreen);
-                            BufferedReader br = new BufferedReader(
-                                new InputStreamReader(pb.getInputStream()));
-                            String sd;
-							while ((sd = br.readLine()) != null)
-                                System.out.println("line: " + sd);
-							pb.waitFor();
-                            System.out.println ("exit: " +pb.exitValue());
-                            pb.destroy();
-                        } catch (Exception e) {e.printStackTrace();}
-                        
                         servidor.start();
                     }
                 }

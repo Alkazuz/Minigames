@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,10 +39,39 @@ public class Servidor
     }
     
     public void start() {
+    	File serverPath = new File("/root/Servidor/" + this.flatName);
+    	File serverPlugin = new File("/root/Servidor/" + this.flatName + "/plugins/"+flatName+".jar");
+    	File serversFiles = new File("/root/ServerFiles");
+    	File serverFolderPlugin = new File("/root/ServerPlugins/"+flatName+".jar");
     	
+    	if(serverFolderPlugin.exists()) {
+    		if(serverPlugin.exists()) {
+    			serverPlugin.delete();
+    		}
+    		try {
+				FileUtils.copyFile(serverFolderPlugin, serverPlugin);
+			} catch (IOException e) { e.printStackTrace(); }
+    	}
+    	
+    	for(File files : serversFiles.listFiles()) {
+    		String fileName = files.getName(); 
+    		File filePath = new File("/root/Servidor/" + this.flatName + "/plugins/"+fileName);
+    		if(filePath.exists()) {
+    			filePath.delete();
+    		}
+    		if(files.isDirectory()) {
+    			try {
+					FileUtils.copyDirectory(files, filePath);
+				} catch (IOException e) { e.printStackTrace(); }
+    		}else {
+    			try {
+					FileUtils.copyFile(files, filePath);
+				} catch (IOException e) { e.printStackTrace(); }
+    		}
+    	}
     	
         ProcessBuilder pb = new ProcessBuilder(new String[] { "sh", "start.sh" });
-        pb.directory(new File("/root/Servidor/" + this.flatName));
+        pb.directory(serverPath);
         try {
             pb.start();
         }
