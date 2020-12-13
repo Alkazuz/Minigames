@@ -21,6 +21,11 @@ public class Utils
             file.delete();
         }
     }
+    
+    public static float randomRange(final float min, final float max) {
+        return min + (float)Math.random() * (max - min);
+    }
+    
     public static boolean percent(int percent) {
     	if(percent == 100) return true;
     	return (double)(new Random().nextInt(100) + 1) < percent;

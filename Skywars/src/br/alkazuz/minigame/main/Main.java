@@ -22,6 +22,8 @@ import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +35,8 @@ import com.huskehhh.mysql.mysql.MySQL;
 import com.huskehhh.mysql.sqlite.SQLite;
 
 import br.alkazuz.minigame.api.ActionBarAPI;
+import br.alkazuz.minigame.api.CancellationDetector;
+import br.alkazuz.minigame.api.CancellationDetector.CancelListener;
 import br.alkazuz.minigame.api.InvencibleAPI;
 import br.alkazuz.minigame.api.ServerAPI;
 import br.alkazuz.minigame.api.TitleAPI;
@@ -57,6 +61,7 @@ import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin implements Runnable
 {
+	private CancellationDetector<EntityDamageEvent> detector = new CancellationDetector<EntityDamageEvent>(EntityDamageEvent.class);
     private static Main instance;
     public FileConfiguration config;
     public FileConfiguration games;
@@ -130,8 +135,17 @@ public class Main extends JavaPlugin implements Runnable
         this.setupEconomy();
         this.registerCommand();
         
-        SkywarsItens.load_normal(this);
+        SkywarsItens.load(this);
         
+        
+//		 detector.addListener(new CancelListener<EntityDamageEvent>() {
+//		 
+//			 @Override 
+//		 		public void onCancelled(Plugin plugin, EntityDamageEvent event) {
+//				 Bukkit.broadcastMessage(event + " cancelled by " + plugin);
+//		 		}
+//		 });
+//        
         Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, new Runnable() {
             @Override
             public void run() {

@@ -27,7 +27,7 @@ public class CommandAMinigame implements CommandExecutor
                 for (Round r : Main.theInstance().rounds) {
                     if (r.hasPlayer(p)) {
                     	for(Arena arena : r.arenas) {
-                    		arena.refill();
+                    		arena.startItens();
                     	}
                     }
                 }

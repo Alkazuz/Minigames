@@ -13,12 +13,18 @@ import org.bukkit.World;
 public class LevelInfo
 {
     public String world;
+    public Location feastSpawn;
     public List<Location> cages = new ArrayList<Location>();
+    public List<Location> feastChests = new ArrayList<Location>();
+    public List<Location> MFeastChests = new ArrayList<Location>();
     
     public RoundLevel createLevel(World world, LevelInfo info) {
-        RoundLevel rl = new RoundLevel();
+        RoundLevel rl = new RoundLevel(info.feastSpawn);
         rl.world = world;
+        (rl.feastSpawn = this.feastSpawn.clone()).setWorld(world);
         rl.cages = info.cages;
+        rl.feastChests = info.feastChests;
+        rl.MFeastChests = info.MFeastChests;
         return rl;
     }
     
@@ -35,11 +41,16 @@ public class LevelInfo
     public static LevelInfo deserialize(Map<String, Object> map) {
         LevelInfo li = new LevelInfo();
         li.world = (String) map.get("world");
-        //System.out.println(Main.theInstance().games.get("level"));
+        li.feastSpawn = deserializePos((String) map.get("feast"));
+        for(Object a : convertObjectToList(map.get("mini-feast-chests"))){
+        	li.MFeastChests.add(deserializePos(a));
+        }
+        for(Object a : convertObjectToList(map.get("feast-chests"))){
+        	li.feastChests.add(deserializePos(a));
+        }
         for(Object a : convertObjectToList(map.get("cages"))){
         	li.cages.add(deserializePos(a));
         }
-        System.out.println(li.world + " possui "+li.cages.size()+" cages");
         return li;
     }
     

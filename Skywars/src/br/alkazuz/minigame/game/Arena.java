@@ -12,6 +12,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import br.alkazuz.minigame.game.SkyChest.ChestType;
 import br.alkazuz.minigame.game.itens.ItemInfoSky;
 import br.alkazuz.minigame.game.itens.SkywarsItem;
 import br.alkazuz.minigame.game.itens.SkywarsItens;
@@ -23,7 +24,7 @@ public class Arena {
 	public Round round;
 	public Location spawn;
 	public Cage cage;
-	public List<Chest> chests = new ArrayList<Chest>();
+	public List<SkyChest> chests = new ArrayList<SkyChest>();
 	
 	public Arena(Player player,Location spawn, Round round) {
 		this.spawn = spawn;
@@ -36,20 +37,20 @@ public class Arena {
 	}
 	
 	private void loadChests() {
-		System.out.println("carregando baús...");
-		for(int y = -20; y <= 20; y++) {
-			for(int x = -30; x < 30; x++) {
-				for(int z = -30; z <= 30; z++) {
+		for(int y = 20; y > -20; y--) {
+			for(int x = -15; x < 15; x++) {
+				for(int z = -15; z < 15; z++) {
 					if(chests.size() >= 3) break;
 					Block block = spawn.getWorld().getBlockAt(spawn.clone().add(x, y, z));
 					if( block != null && block.getType() == Material.CHEST) {
-						chests.add((Chest) block.getState());
+						Chest chest = (Chest) block.getState();
+						SkyChest skyChest = new SkyChest(null, chest.getLocation(), ChestType.NORMAL);
+						chests.add(skyChest);
 					}
 				}
 			}
 		}
-		System.out.println(chests.size() + " baús encontrados.");
-		refill();
+		startItens();
 	}
 	
 	private int emptySlot(Inventory inv) {
@@ -63,7 +64,7 @@ public class Arena {
 		return 0;
 	}
 	
-	public void refill() {
+	public void startItens() {
 		for(String key : SkywarsItens.ITEMS.keySet()) {
 			ItemInfoSky info = SkywarsItens.ITEMS.get(key);
 			List<SkywarsItem> itens = new ArrayList<SkywarsItem>(info.itens);
@@ -75,11 +76,12 @@ public class Arena {
 			while(iterator.hasNext() && i < count) {
 				SkywarsItem skyItem = iterator.next();
 				if(repetido.contains(skyItem) && !info.repeat)continue;
-				if(Utils.percent(skyItem.chance)) {
-					Chest chest = chests.get(new Random().nextInt(chests.size()));
-					chest.getInventory().setItem(emptySlot(chest.getInventory()), skyItem.item);
-					i++;
+				if(Utils.percent(skyItem.chance) || skyItem.chance == 100) {
+					SkyChest chest = chests.get(new Random().nextInt(chests.size()));
+					chest.chest.getInventory().setItem(emptySlot(chest.chest.getInventory()), skyItem.item);
+					//System.out.println("item "+ skyItem.item.getType().toString() + " adicionado em "+Methods.encodeLocation(chest.getLocation()));
 					repetido.add(skyItem);
+					if(skyItem.chance != 100) i++;
 				}
 			}
 		}

@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 
 import br.alkazuz.minigame.data.PlayerData;
 import br.alkazuz.minigame.game.Round;
+import br.alkazuz.minigame.game.SkywarsPlayer;
 
 public class ScoreBoard implements Listener
 {
@@ -24,11 +25,19 @@ public class ScoreBoard implements Listener
         scoreBoardAPI.update("§b" + data.getRank() + "° Lugar", 6);
         scoreBoardAPI.update("§f" + data.partidas, 3);
         scoreBoardAPI.update("§f" + data.winTotal, 2);
+        scoreBoardAPI.updateEnemy();
     }
+    
+    public static void updateScoreBoard(Player player,Round round,SkywarsPlayer data) {
+        ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
+        scoreBoardAPI.update("§f"+round.playersAlive(), 3);
+        scoreBoardAPI.update("§f"+data.kills, 2);
+        scoreBoardAPI.updateEnemy();
+     }
     
     public static void createScoreBoardLobby(Player player,Round rouns,PlayerData data) {
         player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-       ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI("§e§lSkyWars", new RandomUUID().getUUID());
+       ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, "§e§lSkyWars", new RandomUUID().getUUID(), rouns);
         scoreBoardAPI.add("§e", 7);
         scoreBoardAPI.add("§fRank: ", 6);
         scoreBoardAPI.add("§d", 5);
@@ -37,6 +46,7 @@ public class ScoreBoard implements Listener
         scoreBoardAPI.add(" §a\u2022 Vit\u00f3rias: ", 2);
         scoreBoardAPI.add("§3", 1);
         scoreBoardAPI.add("  §6jogar.zeusmc.net", 0);
+        
         scoreBoardAPI.build();
         ScoreBoard.boards.remove(player);
         scoreBoardAPI.send(player);
@@ -50,20 +60,14 @@ public class ScoreBoard implements Listener
         }
     }
     
-    public static void updateScoreBoard(Player player,Round round,PlayerData data) {
-        ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
-         scoreBoardAPI.update("§b" + data.getRank() + "° Lugar", 6);
-     }
-    
     public static void createScoreBoard(Player player,Round detetive) {
         player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-        ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI("§6§lSkyWars", new RandomUUID().getUUID());
-        scoreBoardAPI.add("§e", 7);
-        scoreBoardAPI.add("§fRank: ", 6);
-        scoreBoardAPI.add("§d", 5);
-        scoreBoardAPI.add("§eInfo. da Partida:", 4);
-        scoreBoardAPI.add(" §aRefill: §f", 3);
-        scoreBoardAPI.add(" §aPlayers: §f", 2);
+        ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, "§6§lSkyWars", new RandomUUID().getUUID(), detetive);
+        scoreBoardAPI.add("§d", 6);
+        scoreBoardAPI.add("§eInfo. da Partida:", 5);
+        scoreBoardAPI.add(" §aRefill: §f", 4);
+        scoreBoardAPI.add(" §aPlayers: §f", 3);
+        scoreBoardAPI.add(" §aKills: §f", 2);
         scoreBoardAPI.add("§b", 1);
         scoreBoardAPI.add("  §6jogar.zeusmc.net", 0);
         scoreBoardAPI.build();

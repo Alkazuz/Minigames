@@ -11,8 +11,8 @@ public class MinigameConfig
     public static boolean PVP = true;
     public static boolean SPAWN_MOBS = false;
     public static boolean KEEP_INVENTORY = false;
-    public static boolean FALL_DAMAGE = false;
-    public static boolean PLAYER_DAMAGE = false;
+    public static boolean FALL_DAMAGE = true;
+    public static boolean PLAYER_DAMAGE = true;
     public static boolean BUILD = true;
     public static boolean DROP = true;
     public static boolean PICK_UP= true;
