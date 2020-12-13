@@ -29,6 +29,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 
 import br.alkazuz.minigame.api.ActionBarAPI;
+import br.alkazuz.minigame.api.InvencibleAPI;
 import br.alkazuz.minigame.api.PlayerAPI;
 import br.alkazuz.minigame.api.ServerAPI;
 import br.alkazuz.minigame.api.TitleAPI;
@@ -42,7 +43,7 @@ import br.alkazuz.minigame.main.Main;
 import br.alkazuz.minigame.scoreboard.ScoreBoard;
 import br.alkazuz.minigame.shop.ShopMenu;
 import br.alkazuz.minigame.utils.Utils;
-import me.arcaniax.hdb.libs.xseries.XMaterial;
+import br.alkazuz.minigame.utils.XMaterial;
 
 public class Round implements Listener
 {
@@ -163,7 +164,7 @@ public class Round implements Listener
     	SkywarsPlayer winner = playerList.get(0);
     	Player p = winner.player;
     	
-    	new EffectWin(winner);
+    	new EffectWin(winner).playWinEffect();
     	TitleAPI.sendTitle(p, 10, 60, 10, "§a§lVITÓRIA", "§7Você venceu a partida.");
     	Main.theInstance().economy.depositPlayer((OfflinePlayer)p, (double)MinigameConfig.MONEY);
         p.sendMessage(MinigameConfig.win_you.replace("{0}", String.valueOf(MinigameConfig.MONEY)));
@@ -173,12 +174,12 @@ public class Round implements Listener
             public void run() {
             	Iterator<Player> iterator = new ArrayList<>(players.keySet()).iterator();
                 while(iterator.hasNext()) {
-                	iterator.next();
-                	removePlayer(p);
+                	Player all = iterator.next();
+                	removePlayer(all);
                 }
                 Round.this.state = RoundState.FINISHED;
             }
-        }, 100L);
+        }, 140L);
     	//
     }
     
@@ -265,6 +266,7 @@ public class Round implements Listener
             Iterator<Player> iterator = new ArrayList<>(players.keySet()).iterator();
             while(iterator.hasNext()) {
             	Player p = iterator.next();
+            	InvencibleAPI.addPlayer(p, 3);
             	ScoreBoard.createScoreBoard(p, this);
                 PlayerData fromNick = PlayerManager.fromNick(p.getName());
                 ++fromNick.partidas;
@@ -414,6 +416,7 @@ public class Round implements Listener
     	event.setDeathMessage(null);
     	event.setKeepInventory(false);
     	if(!hasPlayer(death)) return;
+    	death.sendMessage(MinigameConfig.lose);
     	SkywarsPlayer sp2 = players.get(death);
     	sp2.died = true;
     	Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
@@ -430,8 +433,8 @@ public class Round implements Listener
     	}else {
     		Location loc = death.getLocation();
     		for (double height = 0.0; height < 1.0; height += 0.8) {
-                death.getWorld().playEffect(loc.clone().add((double)Utils.randomRange(-1.0f, 1.0f), height, (double)Utils.randomRange(-1.0f, 1.0f)), Effect.STEP_SOUND, (Object)XMaterial.REDSTONE_BLOCK.parseMaterial());
-                death.getWorld().playEffect(loc.clone().add((double)Utils.randomRange(1.0f, -1.0f), height, (double)Utils.randomRange(-1.0f, 1.0f)), Effect.STEP_SOUND, (Object)XMaterial.REDSTONE_BLOCK.parseMaterial());
+                death.getWorld().playEffect(loc.clone().add((double)Utils.randomRange(-1.0f, 1.0f), height, (double)Utils.randomRange(-1.0f, 1.0f)), Effect.STEP_SOUND, XMaterial.REDSTONE_BLOCK.parseMaterial());
+                death.getWorld().playEffect(loc.clone().add((double)Utils.randomRange(1.0f, -1.0f), height, (double)Utils.randomRange(-1.0f, 1.0f)), Effect.STEP_SOUND, XMaterial.REDSTONE_BLOCK.parseMaterial());
             }
     		
     		event.setDeathMessage(death.getDisplayName() + " §efoi eliminado por "+killer.getDisplayName());

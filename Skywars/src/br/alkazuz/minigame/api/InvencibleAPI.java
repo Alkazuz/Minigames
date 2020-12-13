@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 
 import br.alkazuz.minigame.main.Main;
@@ -30,11 +30,11 @@ public class InvencibleAPI implements Listener
     }
     
     @EventHandler
-    public void onDamage(final EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
-            final Player damager = (Player)event.getDamager();
+    public void onDamage(final EntityDamageEvent event) {
+        if ( event.getEntity() instanceof Player) {
+
             final Player player = (Player)event.getEntity();
-            if (InvencibleAPI.invencible.contains(damager) || InvencibleAPI.invencible.contains(player)) {
+            if (InvencibleAPI.invencible.contains(player)) {
                 event.setCancelled(true);
             }
         }
