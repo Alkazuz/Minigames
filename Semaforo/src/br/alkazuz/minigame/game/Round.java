@@ -15,6 +15,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.material.*;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.DisplaySlot;
 
 import com.google.common.collect.*;
 
@@ -189,6 +190,7 @@ public class Round implements Listener
         if (this.state == RoundState.AVAILABLE) {
             this.timeStarted = System.currentTimeMillis();
             for (Player p : this.players.values()) {
+            	p.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
                 PlayerData data = PlayerManager.fromNick(p.getName());
                 data.partidas++;
                 

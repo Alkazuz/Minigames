@@ -121,14 +121,11 @@ public class Main extends JavaPlugin implements Runnable
         this.setupEconomy();
         this.registerCommand();
         this.getServer().getScheduler().scheduleSyncRepeatingTask((Plugin)this, (Runnable)this, 20L, 20L);
-        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, (Runnable)new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, new Runnable() {
             @Override
             public void run() {
-                LevelInfo[] access$0;
-                for (int length = (access$0 = Main.this.levels).length, i = 0; i < length; ++i) {
-                    LevelInfo level = access$0[i];
-                    Main.this.createRound(null);
-                }
+            	//Main.this.createRound(null);
+            	Main.this.getServer().getScheduler().scheduleSyncRepeatingTask(Main.this, Main.this, 20L, 20L);
             }
         });
         Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)theInstance(), (Runnable)new Runnable() {
@@ -156,6 +153,7 @@ public class Main extends JavaPlugin implements Runnable
                 });
             }
         }, 0L, 2400L);
+        setupRound();
     }
     
     public void run() {
@@ -239,29 +237,15 @@ public class Main extends JavaPlugin implements Runnable
         });
     }
     
-    public Round getRound() {
-        if (this.rounds.size() <= 0) {
-            return null;
-        }
-        Round round = null;
-        int index = 0;
-        Round best = null;
-        List<Round> all = this.rounds;
-        while (round == null && index < 10) {
-            ++index;
-            round = all.get(new Random().nextInt(all.size()));
-            if (round != null && round.state == RoundState.AVAILABLE && System.currentTimeMillis() - round.timeLoaded >= 3000L) {
-                best = round;
-            }
-        }
-        for (index = 0; best == null && index < 10; best = round) {
-            ++index;
-            round = all.get(new Random().nextInt(all.size()));
-            if (round != null && round.state == RoundState.AVAILABLE && System.currentTimeMillis() - round.timeLoaded >= 3000L) {
-                best = round;
-            }
-        }
-        return best;
+    public GameFinder finder;
+    public void setupRound() {
+    	finder = new GameFinder(this);
+    	 Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)theInstance(), new Runnable() {
+             @Override
+             public void run() {
+            	 finder.update();
+             }
+         }, 0L, 20L);
     }
     
     public void registerCommand() {

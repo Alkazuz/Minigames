@@ -20,29 +20,14 @@ public class MinigameListener implements Listener
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
-            @Override
-            public void run() {
-                new BukkitRunnable() {
-                    public void run() {
-                        for (Round r : Main.theInstance().rounds) {
-                            if (r.hasPlayer(p)) {
-                                this.cancel();
-                                return;
-                            }
-                        }
-                        Round round = Main.theInstance().getRound();
-                        if (round != null) {
-                            new BukkitRunnable() {
-                                public void run() {
-                                    round.joinPlayer(p);
-                                }
-                            }.runTask((Plugin)Main.theInstance());
-                        }
-                    }
-                }.runTaskTimer((Plugin)Main.theInstance(), 0L, 20L);
-            }
-        }, 20L);
+        Round round = Main.theInstance().getRound();
+        if (round != null) {
+            new BukkitRunnable() {
+                public void run() {
+                    round.joinPlayer(p);
+                }
+            }.runTask((Plugin)Main.theInstance());
+        }
     }
     
     @EventHandler
@@ -149,7 +134,7 @@ public class MinigameListener implements Listener
             DataOutputStream out = new DataOutputStream(b);
             try {
                 out.writeUTF("Connect");
-                out.writeUTF("arcadelobby");
+                out.writeUTF("lobby");
             }
             catch (IOException e2) {
                 e2.printStackTrace();
@@ -168,11 +153,5 @@ public class MinigameListener implements Listener
             return;
         }
         MinigameConfig.LAST_PLAYER_JOINED = System.currentTimeMillis();
-        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
-            @Override
-            public void run() {
-                round.joinPlayer(p);
-            }
-        }, 5L);
     }
 }
