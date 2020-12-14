@@ -17,16 +17,21 @@ public class PlayerData
     }
     
     public int getRank() {
-        if (RankingUpdater.ranking.containsKey(this.nick)) {
-            return RankingUpdater.ranking.get(this.nick);
-        }
+    	try {
+    		if (RankingUpdater.ranking.containsKey(this.nick)) {
+                return RankingUpdater.ranking.get(this.nick);
+            }
+    	}catch (Exception e) {
+			// TODO: handle exception
+		}
+        
         return 0;
     }
     
     public void save() {
         try {
-            SQLData.execute("DELETE FROM `"+MinigameConfig.NAME.toLowerCase()+"_data` WHERE nick='" + this.nick + "'");
-            PreparedStatement prepareStatement2 = SQLData.con.prepareStatement("INSERT INTO `"+MinigameConfig.NAME.toLowerCase()+"_data` (`nick`, `object`) VALUES (?,?) ");
+            SQLData.execute("DELETE FROM `"+MinigameConfig.NAME.toLowerCase().replace(" ", "_")+"_data` WHERE nick='" + this.nick + "'");
+            PreparedStatement prepareStatement2 = SQLData.con.prepareStatement("INSERT INTO `"+MinigameConfig.NAME.toLowerCase().replace(" ", "_")+"_data` (`nick`, `object`) VALUES (?,?) ");
             prepareStatement2.setString(1, this.nick);
             prepareStatement2.setString(2, SQLData.encodePlayerData(this));
             prepareStatement2.executeUpdate();

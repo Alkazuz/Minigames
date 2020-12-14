@@ -27,19 +27,41 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.nametagedit.plugin.api.events.NametagEvent;
-import com.nametagedit.plugin.api.events.NametagEvent.ChangeType;
-
 import br.alkazuz.minigame.game.MinigameConfig;
 import br.alkazuz.minigame.game.Round;
 import br.alkazuz.minigame.game.RoundState;
 import br.alkazuz.minigame.main.Main;
+import br.alkazuz.spigot.addons.main.SpigotAddons;
 
 public class MinigameListener implements Listener
 {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        
+        if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) {
+        	
+        	Player target = Bukkit.getPlayer(SpigotAddons.playerTP.get(p.getName()));
+        	if(target != null) {
+        		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                    @Override
+                    public void run() {
+                    	p.teleport(target);
+                		p.sendMessage("§aVocê foi teleportado até "+target.getDisplayName()+"§a.");
+                		for(Round r : Main.theInstance().rounds) {
+                			if(r.hasPlayer(target)) {
+                				for(Player all : r.players.keySet()) {
+                					p.showPlayer(all);
+                				}
+                			}
+                		}
+                    }
+                }, 10L);
+        		
+        	}
+        	return;
+        }
+        
         Round round = Main.theInstance().getRound();
         if (round != null && round.state ==RoundState.AVAILABLE) {
             new BukkitRunnable() {
@@ -162,17 +184,13 @@ public class MinigameListener implements Listener
         }
     }
     
-    @EventHandler
-    public void ontag(NametagEvent event) {
-    	Player player = Bukkit.getPlayer(event.getPlayer());
-    	if(event.getChangeType() == ChangeType.PREFIX) {
-    		player.setDisplayName(event.getValue()+" §7"+player.getName());
-    	}
-    }
     
     @EventHandler
     public void onJoin(PlayerLoginEvent event) {
         Player p = event.getPlayer();
+        
+        if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) return;
+        
         Round round = Main.theInstance().getRound();
         if (round == null && !p.hasPermission("minigame.admin")) {
             event.setKickMessage("§cNenhuma partida encontrada.");

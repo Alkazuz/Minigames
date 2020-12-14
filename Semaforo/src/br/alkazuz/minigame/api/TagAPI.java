@@ -1,11 +1,10 @@
 package br.alkazuz.minigame.api;
 
-import org.bukkit.entity.*;
-import com.nametagedit.plugin.*;
+import org.bukkit.entity.Player;
 
 public class TagAPI
 {
-    public static void apply(String prefixo, String suffixo, Player p, boolean update) {
+    public static void apply(String suffixo, Player p) {
         
     }
 }

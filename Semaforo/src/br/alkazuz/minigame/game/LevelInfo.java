@@ -5,48 +5,31 @@ import java.util.*;
 
 public class LevelInfo
 {
-    public String worldName;
-    public Location spawnPos;
-    public BoundingBox startWall;
-    public BoundingBox endWall;
-    public BoundingBox finishRegion;
+    public String world;
+    public Location lobbySpawn;
+    public Location startSpawn;
+    public Location dragonSpawn;
     
     public RoundLevel createLevel(World world) {
         RoundLevel rl = new RoundLevel();
         rl.world = world;
-        rl.spawnPos = spawnPos.clone();
-        rl.spawnPos.setWorld(world);
-        
-        rl.startWall = startWall;
-        rl.endWall = endWall;
-        rl.finishRegion = finishRegion;
+        (rl.lobbySpawn = this.lobbySpawn.clone()).setWorld(world);
+        (rl.startSpawn = this.startSpawn.clone()).setWorld(world);
+        (rl.dragonSpawn = this.dragonSpawn.clone()).setWorld(world);
         return rl;
     }
     
     public static LevelInfo deserialize(Map<String, Object> map) {
         LevelInfo li = new LevelInfo();
-        li.worldName = (String)map.get("world_name");
-        li.spawnPos = deserializePos(map.get("spawn_pos"));
-        li.startWall = deserializeBB(map.get("start_wall_bb"));
-        li.endWall = deserializeBB(map.get("end_wall_bb"));
-        li.finishRegion = deserializeBB(map.get("finish_region_bb"));
+        li.world = (String) map.get("world");
+        li.lobbySpawn = deserializePos(map.get("joinspawn"));
+        li.startSpawn = deserializePos(map.get("startspawn"));
+        li.dragonSpawn = deserializePos(map.get("dragonspawn"));
         return li;
     }
     
-    private static Location deserializePos(Object v) 
-    {
-        String[] s = ((String)v).split(";");
-        return new Location(
-            null, 
-            Double.parseDouble(s[0]),
-            Double.parseDouble(s[1]),
-            Double.parseDouble(s[2]),
-            s.length >= 5 ? Float.parseFloat(s[3]) : 0,
-            s.length >= 5 ? Float.parseFloat(s[4]) : 0
-        );
-    }
-    private static BoundingBox deserializeBB(Object v)
-    {
-        return BoundingBox.parse((String)v);
+    private static Location deserializePos(Object p) {
+        String[] coord = ((String)p).split(";");
+        return new Location((World)null, (double)Integer.valueOf(coord[0]), (double)Integer.valueOf(coord[1]), (double)Integer.valueOf(coord[2]), (float)Float.valueOf(coord[3]), (float)Float.valueOf(coord[4]));
     }
 }

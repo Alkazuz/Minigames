@@ -1,32 +1,51 @@
 package br.alkazuz.minigame.game;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.*;
-import org.bukkit.material.*;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scoreboard.DisplaySlot;
 
-import com.google.common.collect.*;
-
-import br.alkazuz.minigame.api.*;
+import br.alkazuz.minigame.api.ActionBarAPI;
+import br.alkazuz.minigame.api.PlayerAPI;
+import br.alkazuz.minigame.api.ServerAPI;
+import br.alkazuz.minigame.api.TagAPI;
+import br.alkazuz.minigame.api.TitleAPI;
 import br.alkazuz.minigame.data.PlayerData;
 import br.alkazuz.minigame.data.PlayerManager;
+import br.alkazuz.minigame.dragon.EntityDragonEscape;
 import br.alkazuz.minigame.main.Main;
 import br.alkazuz.minigame.scoreboard.ScoreBoard;
 import br.alkazuz.minigame.shop.ShopMenu;
-import br.alkazuz.minigame.utils.*;
-import net.milkbowl.vault.economy.*;
+import br.alkazuz.minigame.utils.Utils;
+import net.minecraft.server.v1_8_R3.EntityEnderDragon;
+import net.minecraft.server.v1_8_R3.EntityItemFrame;
+import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.EntityPainting;
+import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class Round implements Listener
 {
@@ -34,18 +53,16 @@ public class Round implements Listener
     public HashMap<UUID, Player> players;
     public Map<String, Integer> vipShop;
     public RoundState state;
-    public long timeLoaded;
     public long timeStarted;
+    public long timeLoaded;
     public RoundLevel level;
     public RoundCounter counter;
-    
-    private LightColor lightColor = LightColor.Green;
-    private long lightChangeTime;
-    private long lastTimeoutMsg;
-    
-    private Random rng = new Random();
-    private Set<Player> secondChanceUsers = Sets.newHashSet();
-    
+    private int winner;
+    public String first;
+    public String second;
+    public String three;
+    public EnderDragon dragon;
+    private boolean valid = false;
     
     @Override
     public String toString() {
@@ -56,24 +73,122 @@ public class Round implements Listener
         this.players = new HashMap<UUID, Player>();
         this.vipShop = Collections.synchronizedMap(new HashMap<String, Integer>());
         this.state = RoundState.AVAILABLE;
+        this.winner = 1;
+        this.first = null;
+        this.second = null;
+        this.three = null;
         this.level = level;
-        this.timeLoaded = System.currentTimeMillis();
-        
+        if (level == null) {
+            this.state = RoundState.LOADING;
+        }
+        else {
+            for (Entity e : level.dragonSpawn.getWorld().getEntities()) {
+                if (e instanceof Player) {
+                    continue;
+                }
+                if (e instanceof EntityPainting) {
+                    continue;
+                }
+                if (e instanceof EntityItemFrame) {
+                    continue;
+                }
+                e.remove();
+            }
+            this.validateWorld();
+        }
         this.id = RoundLevel.worldCounter.get();
+        this.timeLoaded = System.currentTimeMillis();
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)Main.theInstance());
+        for(Round round : Main.theInstance().rounds) {
+        	if(round.level.startSpawn.getWorld().getName().equals(level.startSpawn.getWorld().getName())) {
+        		state = RoundState.FINISHED;
+    		}
+        }
+    }
+    
+    public boolean isValidWorld() {
+    	
+    	level.lobbySpawn.getWorld().setSpawnLocation(level.lobbySpawn.getBlockX(), level.lobbySpawn.getBlockY(), level.lobbySpawn.getBlockZ());
+    	loadChunks();
+    	
+    	List<Material> list = Utils.getAmountMaterials(level.lobbySpawn);
+    	System.out.println(list.size());
+    	for(Material m : list) {
+    		System.out.println(m.toString());
+    	}
+    	if(list.size() < 3 && !list.contains(Material.GLASS)) {
+    		System.out.println("Mundo inválido");
+    		return false;
+    	}
+    	return true;
+    }
+    
+    public void loadChunks() {
+    	int x = level.lobbySpawn.getBlockX() - 250;
+        int i = x = 65036;
+        System.out.println(level.lobbySpawn.getWorld().getBlockAt(level.startSpawn.clone()).toString());
+    	while (i < 250) {
+            int z = level.lobbySpawn.getBlockZ() - 250;
+            int j = z = 65036;
+            while (j < 250) {
+                    final Chunk chunk = level.lobbySpawn.getWorld().getBlockAt(x, 64, z).getChunk();
+                    System.out.println(level.lobbySpawn.getWorld().getBlockAt(x, 64, z).toString());
+                    if (!chunk.isLoaded()) {
+                    	System.out.println(chunk.toString() + " carregada.");
+                        chunk.load(true);
+                }
+                j = ++z;
+            }
+            i = ++x;
+        }
+    }
+    
+    public void validateWorld() {
+    	if(isValidWorld()) return;
+    	this.state = RoundState.FINISHED;
+		Main.theInstance().rounds.remove(this);
+		Iterator<Player> iterator = players.values().iterator();
+        while(iterator.hasNext()) {
+        	Player p = iterator.next();
+        	removePlayerMD(p);
+        }
     }
     
     public void update() {
+    	
+    	if(counter !=null) {
+    		this.counter.timer--;
+    	}
+    	
+        if (this.state == RoundState.IN_PROGRESS) {
+            if (this.players.size() == 0) {
+                if (this.dragon != null) {
+                    this.dragon.remove();
+                }
+                this.state = RoundState.FINISHED;
+            }
+            if (this.dragon != null) {
+                for (int x = -5; x <= 5; ++x) {
+                    for (int y = -5; y <= 5; ++y) {
+                        for (int z = -5; z <= 5; ++z) {
+                            Block block = this.level.world.getBlockAt(this.dragon.getLocation().getBlockX() + x, this.dragon.getLocation().getBlockY() + y, this.dragon.getLocation().getBlockZ() + z);
+                            if (block != null && block.getType() != Material.AIR) {
+                                block.setType(Material.AIR);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if (this.state == RoundState.AVAILABLE) {
             if (this.counter == null) {
                 this.counter = new RoundCounter(this);
             }
-            
-            
             String msg = this.counter.getMessageAndUpdate(this.totalPlayers());
-            for (Player p : this.players.values()) {
-                ActionBarAPI.sendActionBar(p, msg);
-                ScoreBoard.updateScoreBoardLobby(p, this, PlayerManager.fromNick(p.getName()));
+            Iterator<Player> iterator = players.values().iterator();
+            while(iterator.hasNext()) {
+            	Player p = iterator.next();
+            	 ActionBarAPI.sendActionBar(p, msg);
                 
                 if (this.counter.timer <= 5 && this.counter.starting) {
                     if (this.counter.timer == 5) {
@@ -98,83 +213,6 @@ public class Round implements Listener
                 this.start();
             }
         }
-        else if (state == RoundState.IN_PROGRESS) {
-            updateLight();
-            checkTimeout();
-        }
-    }
-    
-    private void updateLight()
-    {
-        long now = System.currentTimeMillis();
-        
-        if (now < lightChangeTime) {
-            return;
-        }
-
-        lightColor = lightColor.next();
-        lightChangeTime = now + Utils.random(rng, lightColor.timeMin, lightColor.timeMax);
-        
-        secondChanceUsers.clear();
-        
-        String lightAction = getLightAction(lightColor);
-        ItemStack lightItem = createLightItem(lightColor);
-        
-        for (Player p : this.players.values()) {
-            PlayerInventory inv = p.getInventory();
-            
-            for (int i = 0; i < 9; i++) {
-                ItemStack currItem = inv.getItem(i);
-                if (currItem == null || currItem.getType() != Material.SLIME_BALL) {
-                    inv.setItem(i, lightItem);
-                }
-            }
-            ActionBarAPI.sendActionBar(p, lightAction);
-        }
-    }
-    
-    private ItemStack createLightItem(LightColor col)
-    {
-        Wool wool = new Wool(Material.STAINED_CLAY);
-        wool.setColor(col.dye);
-        ItemStack item = wool.toItemStack(1);
-        
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(getLightAction(col));
-        item.setItemMeta(meta);
-        
-        return item;
-    }
-    private String getLightAction(LightColor col)
-    {
-        switch (col) {
-            case Green:  return MinigameConfig.LIGHT_ACTION_GREEN;
-            case Yellow: return MinigameConfig.LIGHT_ACTION_YELLOW;
-            case Red:    return MinigameConfig.LIGHT_ACTION_RED;
-            default: throw new IllegalStateException();
-        }
-    }
-
-    private void checkTimeout()
-    {
-        long now = System.currentTimeMillis();
-        
-        long maxDuration = 3 * 60 * 1000;
-        long timeRemaining = (timeStarted + maxDuration) - now;
-        
-        if (timeRemaining <= 0) {
-            for (Player p : players.values()) {
-                p.sendMessage(MinigameConfig.LOSE_YOU);
-                removePlayerMD(p);
-            }
-            players.clear();
-            
-            state = RoundState.FINISHED;
-        } 
-        else if (now - lastTimeoutMsg > 60 * 1000) {
-            lastTimeoutMsg = System.currentTimeMillis();
-            broadcast(String.format("§cFim da partida em %d minutos!", timeRemaining / 60_000));
-        }
     }
     
     public void cleanUp() {
@@ -188,31 +226,43 @@ public class Round implements Listener
     
     public void start() {
         if (this.state == RoundState.AVAILABLE) {
-            this.timeStarted = System.currentTimeMillis();
-            for (Player p : this.players.values()) {
-            	p.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-                PlayerData data = PlayerManager.fromNick(p.getName());
-                data.partidas++;
-                
-                for (String n : MinigameConfig.GAME_START) {
-                    p.sendMessage(n.replace("{0}", MinigameConfig.MONEY_WINNER + ""));
-                }
-                ScoreBoard.createScoreBoard(p, this);
-            }
-            this.level.startWall.fill(this.level.world, Material.AIR, null);
-            this.level.endWall.fill(this.level.world, Material.AIR, null);
-
-            this.lightChangeTime = 0;
-            this.lightColor = LightColor.Red;
-            updateLight();
-            
             this.state = RoundState.IN_PROGRESS;
+            this.timeStarted = System.currentTimeMillis();
+            Iterator<Player> iterator = players.values().iterator();
+            while(iterator.hasNext()) {
+            	Player p = iterator.next();
+                try {
+                    PlayerData fromNick;
+                    PlayerData data = fromNick = PlayerManager.fromNick(p.getName());
+                    ++fromNick.partidas;
+                    p.teleport(this.level.startSpawn);
+                    for (String n : MinigameConfig.GAME_START) {
+                        p.sendMessage(n.replace("{0}", String.valueOf(MinigameConfig.MONEY_FIRST)));
+                    }
+                    ScoreBoard.createScoreBoard(p, this);
+                    ScoreBoard.updateScoreBoard(p, this, data);
+                }
+                catch (Exception ex) {}
+            }
+            this.spawnDragon();
+        }
+    }
+    
+    public void spawnDragon() {
+        WorldServer handle = ((CraftWorld)this.level.dragonSpawn.getWorld()).getHandle();
+        EntityEnderDragon entity = new EntityDragonEscape((net.minecraft.server.v1_8_R3.World)handle);
+        entity.setLocation(this.level.dragonSpawn.getX(), this.level.dragonSpawn.getY(), this.level.dragonSpawn.getZ(), this.level.dragonSpawn.getYaw(), this.level.dragonSpawn.getPitch());
+        ((CraftLivingEntity)entity.getBukkitEntity()).setRemoveWhenFarAway(false);
+        handle.addEntity((net.minecraft.server.v1_8_R3.Entity)entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        this.dragon = (EnderDragon)entity.getBukkitEntity();
+        for (Player all : this.players.values()) {
+            all.playSound(all.getLocation(), Sound.ENDERDRAGON_GROWL, 1.0f, 1.0f);
         }
     }
     
     public void joinPlayer(Player p) {
-        p.teleport(this.level.spawnPos);
-        TagAPI.apply("", "", p, true);
+        p.teleport(this.level.lobbySpawn);
+        TagAPI.apply("", p);
         PlayerAPI.resetPlayer(p);
         this.players.put(p.getUniqueId(), p);
         for (Player all : Bukkit.getOnlinePlayers()) {
@@ -222,13 +272,34 @@ public class Round implements Listener
         Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
             @Override
             public void run() {
-                for (Player all : Round.this.players.values()) {
+            	 p.teleport(level.lobbySpawn);
+            	Iterator<Player> iterator = new ArrayList<>(players.values()).iterator();
+                while(iterator.hasNext()) {
+                	Player all = iterator.next();
                     all.showPlayer(p);
                     p.showPlayer(all);
                 }
+                for (Entity e : level.startSpawn.getWorld().getEntities()) {
+                    if (e instanceof EntityLiving && !(e instanceof Player)) {
+                    	e.remove();
+                    }
+                }
             }
-        }, 20L);
-        PlayerData data = PlayerManager.fromNick(p.getName());
+        }, 2L);
+        PlayerData data= PlayerManager.fromNick(p.getName());
+    	if(data.getRank() == 1) {
+    		broadcast(" ");
+    		broadcast("§6§l[RANKING] §6"+p.getName()+" §6é TOP 1 neste minigame e está nessa sala!!");
+    		broadcast(" ");
+    	}else if(data.getRank() == 2){
+    		broadcast(" ");
+    		broadcast("§b§l[RANKING] §b"+p.getName()+" §bé TOP 2 neste minigame e está nessa sala!!");
+    		broadcast(" ");
+    	}else if(data.getRank() == 3){
+    		broadcast(" ");
+    		broadcast("§e§l[RANKING] §e"+p.getName()+" §eé TOP 3 neste minigame e está nessa sala!!");
+    		broadcast(" ");
+    	}
         if (!this.vipShop.containsKey(p.getName())) {
             this.vipShop.put(p.getName(), 0);
         }
@@ -243,6 +314,8 @@ public class Round implements Listener
     
     public boolean removePlayer(Player p) {
         if (this.players.remove(p.getUniqueId()) != null) {
+            PlayerData data = PlayerManager.fromNick(p.getName());
+            data.save();
             this.removePlayerMD(p);
             return true;
         }
@@ -250,9 +323,6 @@ public class Round implements Listener
     }
     
     private void removePlayerMD(Player p) {
-        PlayerData data = PlayerManager.fromNick(p.getName());
-        data.save();
-    
         p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         p.setPlayerListName(p.getName());
         ServerAPI.sendPlayer(p, "lobby");
@@ -268,7 +338,9 @@ public class Round implements Listener
     }
     
     public void broadcast(String message) {
-        for (Player p : this.players.values()) {
+    	Iterator<Player> iterator = players.values().iterator();
+        while(iterator.hasNext()) {
+        	Player p = iterator.next();
             p.sendMessage(message);
         }
     }
@@ -291,10 +363,10 @@ public class Round implements Listener
             }
         }, 2L);
         if (this.hasPlayer(p) && this.state == RoundState.AVAILABLE) {
-            p.teleport(this.level.spawnPos);
+            p.teleport(this.level.lobbySpawn);
         }
         if (this.hasPlayer(p) && this.state == RoundState.IN_PROGRESS) {
-            p.sendMessage(MinigameConfig.LOSE_YOU);
+            p.sendMessage(MinigameConfig.LOSE);
             this.removePlayer(p);
             this.broadcast(MinigameConfig.DEATH.replace("{0}", p.getName()));
         }
@@ -304,60 +376,66 @@ public class Round implements Listener
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (this.hasPlayer(p) && this.state == RoundState.AVAILABLE && p.getLocation().getBlockY() <= -1) {
-            p.teleport(this.level.spawnPos);
+            p.teleport(this.level.lobbySpawn);
         }
         if (this.hasPlayer(p) && this.state == RoundState.IN_PROGRESS) {
-            final double DELTA_THRESHOLD = 0.1;
-            if (this.lightColor == LightColor.Red && e.getFrom().distance(e.getTo()) > DELTA_THRESHOLD) {
-                if (p.getInventory().contains(Material.SLIME_BALL)) {
-                    secondChanceUsers.add(p);
-                    p.getInventory().remove(Material.SLIME_BALL);
-                    p.sendMessage(MinigameConfig.USE_SECOND_CHANCE);
-                }
-                if (!secondChanceUsers.contains(p)) {
-                    this.broadcast(MinigameConfig.LOSE_OTHER.replace("{0}", p.getName()));
-                    p.sendMessage(MinigameConfig.LOSE_YOU);
-                    removePlayer(p);
-                }
+            if (p.getLocation().getBlockY() <= -1) {
+                p.sendMessage(MinigameConfig.LOSE);
+                this.removePlayer(p);
+                this.broadcast(MinigameConfig.DEATH.replace("{0}", p.getName()));
+                return;
             }
-            else if (this.level.finishRegion.contains(p.getLocation())) {
-                int coins = MinigameConfig.MONEY_WINNER;
-
+            Block block = p.getWorld().getBlockAt(p.getLocation().clone().add(0.0, -1.0, 0.0));
+            if (block != null && block.getType() == Material.BEACON) {
+                String lugar = "";
+                int coins = 15;
+                if (this.winner == 1) {
+                    this.winner = 2;
+                    coins = MinigameConfig.MONEY_FIRST;
+                    lugar = "primeiro lugar";
+                    this.first = p.getName();
+                }
+                else if (this.winner == 2) {
+                    this.winner = 3;
+                    coins = MinigameConfig.MONEY_SECOND;
+                    lugar = "segundo lugar";
+                    this.second = p.getName();
+                }
+                else if (this.winner == 3) {
+                    coins = MinigameConfig.MONEY_TREE;
+                    lugar = "terceiro lugar";
+                    this.three = p.getName();
+                }
                 PlayerData data = PlayerManager.fromNick(p.getName());
-                this.broadcast(MinigameConfig.WIN_OTHER.replace("{0}", p.getName()));
-                p.sendMessage(MinigameConfig.WIN_YOU.replace("{0}", coins + ""));
-                
-                Economy economy = Main.theInstance().economy;
-                if (economy != null) {
-                    economy.depositPlayer(p, coins);
+                this.broadcast(MinigameConfig.WIN_OTHER.replace("{1}", lugar).replace("{0}", p.getName()));
+                p.sendMessage(MinigameConfig.WIN_YOU.replace("%n%", "\n").replace("&", "§").replace("{0}", String.valueOf(coins)));
+                Main.theInstance().economy.depositPlayer((OfflinePlayer)p, (double)coins);
+                PlayerData playerData = data;
+                ++playerData.winTotal;
+                Iterator<Player> iterator = players.values().iterator();
+                while(iterator.hasNext()) {
+                	Player all = iterator.next();
+                    PlayerData data2 = PlayerManager.fromNick(all.getName());
+                    ScoreBoard.updateScoreBoard(all, this, data2);
                 }
-                data.winTotal++;
-                this.state = RoundState.FINISHED;
+                this.removePlayer(p);
+                if (this.winner == 3) {
+                    for (Player all : this.players.values()) {
+                        all.sendMessage(MinigameConfig.LOSE);
+                        this.removePlayer(all);
+                    }
+                    if (this.dragon != null) {
+                        this.dragon.remove();
+                    }
+                    this.state = RoundState.FINISHED;
+                }
+                if (this.winner == 1) {
+                    this.winner = 2;
+                }
+                if (this.winner == 2) {
+                    this.winner = 3;
+                }
             }
-        }
-    }
-    
-    private static enum LightColor 
-    {
-        Green(3.0f, 5.0f, DyeColor.GREEN), 
-        Yellow(1.0f, 1.5f, DyeColor.YELLOW), 
-        Red(1.2f, 1.5f, DyeColor.RED);
-
-        public static final LightColor[] VALUES = values();
-        
-        public final int timeMin, timeMax;
-        public final DyeColor dye;
-        
-        private LightColor(float timeMin, float timeMax, DyeColor dye)
-        {
-            this.timeMin = (int)(timeMin * 1000);
-            this.timeMax = (int)(timeMax * 1000);
-            this.dye = dye;
-        }
-        
-        public LightColor next()
-        {
-            return VALUES[(ordinal() + 1) % VALUES.length];
         }
     }
 }

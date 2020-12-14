@@ -23,7 +23,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -31,6 +30,7 @@ import br.alkazuz.arena.api.InvencibleAPI;
 import br.alkazuz.arena.main.Main;
 import br.alkazuz.arena.shop.ShopMenu;
 import br.alkazuz.arena.utils.ItemBuilder;
+import br.alkazuz.spigot.addons.main.SpigotAddons;
 
 public class ArenaListener implements Listener
 {
@@ -51,6 +51,27 @@ public class ArenaListener implements Listener
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
     	 Player p = event.getPlayer();
+    	 
+    	 if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) {
+         	
+         	Player target = Bukkit.getPlayer(SpigotAddons.playerTP.get(p.getName()));
+         	if(target != null) {
+         		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                     @Override
+                     public void run() {
+                     	p.teleport(target);
+                 		p.sendMessage("§aVocê foi teleportado até "+target.getDisplayName()+"§a.");
+                 		//Arena arena = GameManager.searchMatch();
+                 		for(Player all : Bukkit.getOnlinePlayers()) {
+         					p.showPlayer(all);
+         				}
+                     }
+                 }, 10L);
+         		
+         	}
+         	return;
+         }
+    	 
     	Arena arena = GameManager.searchMatch();
     	if (arena == null) {
     		p.sendMessage("§cNenhuma partida encontrada.");

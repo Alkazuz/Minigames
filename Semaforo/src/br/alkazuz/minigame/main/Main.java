@@ -4,20 +4,30 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.configuration.file.*;
-import org.bukkit.enchantments.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,10 +41,12 @@ import com.huskehhh.mysql.sqlite.SQLite;
 import br.alkazuz.minigame.api.ActionBarAPI;
 import br.alkazuz.minigame.api.ServerAPI;
 import br.alkazuz.minigame.api.TitleAPI;
-import br.alkazuz.minigame.commands.CommandASemaforo;
+import br.alkazuz.minigame.commands.CommandADragon;
 import br.alkazuz.minigame.data.PlayerData;
 import br.alkazuz.minigame.data.PlayerManager;
 import br.alkazuz.minigame.data.RankingUpdater;
+import br.alkazuz.minigame.dragon.EntityDragonEscape;
+import br.alkazuz.minigame.game.GameFinder;
 import br.alkazuz.minigame.game.LevelInfo;
 import br.alkazuz.minigame.game.MinigameConfig;
 import br.alkazuz.minigame.game.Round;
@@ -48,6 +60,9 @@ import br.alkazuz.minigame.sql.SQLData;
 import br.alkazuz.minigame.utils.ReflectionUtils;
 import br.alkazuz.minigame.utils.Version;
 import net.milkbowl.vault.economy.Economy;
+import net.minecraft.server.v1_8_R3.EntityEnderDragon;
+import net.minecraft.server.v1_8_R3.EntityInsentient;
+import net.minecraft.server.v1_8_R3.EntityTypes;
 
 public class Main extends JavaPlugin implements Runnable
 {
@@ -56,12 +71,11 @@ public class Main extends JavaPlugin implements Runnable
     public FileConfiguration games;
     public Economy economy;
     private static Version version;
-    public List<Round> rounds;
+    public List<Round> rounds = new CopyOnWriteArrayList<Round>();
     private LevelInfo[] levels;
     private Random rng;
     
     public Main() {
-        this.rounds = new ArrayList<Round>();
         this.levels = new LevelInfo[0];
         this.rng = new Random();
     }
@@ -71,14 +85,14 @@ public class Main extends JavaPlugin implements Runnable
     }
     
     public void writeMessage(String msg) {
-        Bukkit.getConsoleSender().sendMessage("§e[Semaforo] §7" + msg);
+        Bukkit.getConsoleSender().sendMessage("§e[DragonEscape] §7" + msg);
     }
     
     public void onLoad() {
         File[] listFiles;
         for (int length = (listFiles = this.getServer().getWorldContainer().listFiles()).length, i = 0; i < length; ++i) {
             File path = listFiles[i];
-            if (path.getName().startsWith(MinigameConfig.LEVEL_NAME_PREFIX)) {
+            if (path.getName().startsWith(MinigameConfig.LEVE_NAME_PREFIX)) {
                 try {
                     FileUtils.deleteDirectory(path);
                 }
@@ -104,8 +118,8 @@ public class Main extends JavaPlugin implements Runnable
     
     public void onEnable() {
         Main.instance = this;
-        this.config = ConfigManager.load("config");
-        this.games = ConfigManager.load("games");
+        this.config = ConfigManager.getConfig("config");
+        this.games = ConfigManager.getConfig("games");
         Main.version = Version.getServerVersion();
         MinigameConfig.LAST_PLAYER_JOINED = System.currentTimeMillis();
         MinigameConfig.STARTED = System.currentTimeMillis();
@@ -120,7 +134,8 @@ public class Main extends JavaPlugin implements Runnable
         this.setupDatabase();
         this.setupEconomy();
         this.registerCommand();
-        this.getServer().getScheduler().scheduleSyncRepeatingTask((Plugin)this, (Runnable)this, 20L, 20L);
+        
+        finder = new GameFinder(this);
         Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, new Runnable() {
             @Override
             public void run() {
@@ -128,6 +143,8 @@ public class Main extends JavaPlugin implements Runnable
             	Main.this.getServer().getScheduler().scheduleSyncRepeatingTask(Main.this, Main.this, 20L, 20L);
             }
         });
+        
+        this.registerEntity("custom_dragon", 63, (Class<? extends EntityInsentient>)EntityEnderDragon.class, (Class<? extends EntityInsentient>)EntityDragonEscape.class);
         Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)theInstance(), (Runnable)new Runnable() {
             @Override
             public void run() {
@@ -153,20 +170,26 @@ public class Main extends JavaPlugin implements Runnable
                 });
             }
         }, 0L, 2400L);
-        setupRound();
+        
+        
     }
     
+    public GameFinder finder;
     public void run() {
-        for (Round round : this.rounds) {
-            round.update();
-        }
-        for (Round round2 : this.rounds) {
-            if (round2.state == RoundState.FINISHED) {
-                round2.cleanUp();
-                this.createRound(round2.level.world);
-                this.rounds.remove(round2);
+    	finder.update();
+    	Iterator<Round> iterator = rounds.iterator();
+    	while(iterator.hasNext()) {
+    		Round round = iterator.next();
+    		round.update();
+    	}
+    	while(iterator.hasNext()) {
+    		Round round = iterator.next();
+    		if (round.state == RoundState.FINISHED) {
+                round.cleanUp();
+                this.createRound(round.level.world);
+                this.rounds.remove(round);
             }
-        }
+    	}
         if (System.currentTimeMillis() - MinigameConfig.STARTED >= TimeUnit.MINUTES.toMillis(30L)) {
             boolean canRestart = true;
             if (Bukkit.getOnlinePlayers().size() > 0) {
@@ -188,7 +211,7 @@ public class Main extends JavaPlugin implements Runnable
         }
     }
     
-    private void createRound(World oldWorld) {
+    public void createRound(World oldWorld) {
         Server sv = this.getServer();
         BukkitScheduler scheduler = sv.getScheduler();
         File worldDir = sv.getWorldContainer();
@@ -213,7 +236,7 @@ public class Main extends JavaPlugin implements Runnable
                     }
                 }
                 try {
-                    File folder = new File("plugins/" + Main.theInstance().getDescription().getName() + "/maps/" + level.worldName);
+                    File folder = new File("plugins/" + Main.theInstance().getDescription().getName() + "/maps/" + level.world);
                     FileUtils.copyDirectory(folder, newWorld);
                 }
                 catch (Exception e) {
@@ -230,26 +253,42 @@ public class Main extends JavaPlugin implements Runnable
                     public void run() {
                         world.setGameRuleValue("keepInventory", "true");
                         world.setAutoSave(false);
-                        Main.this.rounds.add(new Round(level.createLevel(world)));
+                        Round round = new Round(level.createLevel(world));
+                        world.setSpawnLocation(round.level.lobbySpawn.getBlockX(), round.level.lobbySpawn.getBlockY(), round.level.lobbySpawn.getBlockZ());
+                        Main.this.rounds.add(round);
+                        world.dropItem(round.level.lobbySpawn, new ItemStack(Material.ARROW)).setPickupDelay(Integer.MAX_VALUE);
                     }
                 });
             }
         });
     }
     
-    public GameFinder finder;
-    public void setupRound() {
-    	finder = new GameFinder(this);
-    	 Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)theInstance(), new Runnable() {
-             @Override
-             public void run() {
-            	 finder.update();
-             }
-         }, 0L, 20L);
+    public void registerCommand() {
+        this.getCommand("adragon").setExecutor((CommandExecutor)new CommandADragon());
     }
     
-    public void registerCommand() {
-        this.getCommand("asemaforo").setExecutor(new CommandASemaforo());
+    public void registerEntity(String name, int id, Class<? extends EntityInsentient> nmsClass, Class<? extends EntityInsentient> customClass) {
+        try {
+            List<Map<?, ?>> dataMap = new ArrayList<Map<?, ?>>();
+            Field[] declaredFields;
+            for (int length = (declaredFields = EntityTypes.class.getDeclaredFields()).length, i = 0; i < length; ++i) {
+                Field f = declaredFields[i];
+                if (f.getType().getSimpleName().equals(Map.class.getSimpleName())) {
+                    f.setAccessible(true);
+                    dataMap.add((Map<?, ?>)f.get(null));
+                }
+            }
+            if (dataMap.get(2).containsKey(id)) {
+                dataMap.get(0).remove(name);
+                dataMap.get(2).remove(id);
+            }
+            Method method = EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, Integer.TYPE);
+            method.setAccessible(true);
+            method.invoke(null, customClass, name, id);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     public void loadResources() {

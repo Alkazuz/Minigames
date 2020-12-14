@@ -1,7 +1,6 @@
 package br.alkazuz.minigame.game;
 
-import org.bukkit.entity.*;
-import org.bukkit.*;
+import org.bukkit.entity.Player;
 
 public class SkywarsPlayer
 {

@@ -5,8 +5,10 @@ import java.sql.ResultSet;
 import java.util.concurrent.TimeUnit;
 
 import br.alkazuz.bungee.addons.command.CommandAnunciar;
+import br.alkazuz.bungee.addons.command.CommandBungeeTP;
 import br.alkazuz.bungee.addons.command.CommandManutencao;
 import br.alkazuz.bungee.addons.command.CommandReply;
+import br.alkazuz.bungee.addons.command.CommandReport;
 import br.alkazuz.bungee.addons.command.CommandTell;
 import br.alkazuz.bungee.addons.listener.PlayerListener;
 import br.alkazuz.bungee.addons.mysql.MySQLConnection;
@@ -21,12 +23,8 @@ public class Main extends Plugin
 {
     public static Plugin plugin;
     public static Main instance;
-    public String channel;
+    public static String channel = "bungeeplayertp";
     public Configuration configuration;
-    
-    public Main() {
-        this.channel = "PortalPlayer";
-    }
     
     public static Main theInstance() {
         return Main.instance;
@@ -39,11 +37,14 @@ public class Main extends Plugin
     public void onEnable() {
         Main.plugin = this;
         Main.instance = this;
-        this.getProxy().registerChannel(this.channel);
+        this.getProxy().registerChannel("Vanish");
         this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandTell());
         this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandReply());
         this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandAnunciar());
         this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandManutencao());
+        this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandBungeeTP());
+        this.getProxy().getPluginManager().registerCommand(Main.plugin, (Command)new CommandReport());
+        
         final PluginManager pluginManager = Main.plugin.getProxy().getPluginManager();
         pluginManager.registerListener(Main.plugin, new PlayerListener());
         new Config(this);

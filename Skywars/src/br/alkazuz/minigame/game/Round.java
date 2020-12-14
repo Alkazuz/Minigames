@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
@@ -163,7 +162,7 @@ public class Round implements Listener
     	}
     	SkywarsPlayer winner = playerList.get(0);
     	Player p = winner.player;
-    	
+    	InvencibleAPI.addPlayer(p, 10);
     	new EffectWin(winner).playWinEffect();
     	TitleAPI.sendTitle(p, 10, 60, 10, "§a§lVITÓRIA", "§7Você venceu a partida.");
     	Main.theInstance().economy.depositPlayer((OfflinePlayer)p, (double)MinigameConfig.MONEY);
@@ -483,7 +482,9 @@ public class Round implements Listener
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         if (this.hasPlayer(p)) {
-        	broadcast("§c"+p.getName() + " abandonou a partida!");
+        	if(!players.get(p).died) {
+        		broadcast("§c"+p.getDisplayName() + " abandonou a partida!");
+        	}
         	removePlayer(p);
         }
     }

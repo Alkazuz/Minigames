@@ -1,10 +1,41 @@
 package br.alkazuz.minigame.utils;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public class Utils
 {
+	
+	public static List<Material> getAmountMaterials(Location loc){
+		List<Material> list = new ArrayList<Material>();
+		Chunk c = loc.getChunk();
+		if(!c.isLoaded()) {
+			c.load();
+		}
+		for(int x = -16; x <= 16; x++) {
+			for(int y = -50; y <= 50; y++) {
+				for(int z = -16; z <= 16; z++) {
+					Block block = loc.getWorld().getBlockAt(loc.getBlockX() + x,
+							loc.getBlockY() + y, loc.getBlockZ() + z);
+					if(block != null && !list.contains(block.getType())) {
+						list.add(block.getType());
+					}
+				}
+			}
+		}
+		return list;
+	}
+	
     public static void deleteFile(File file) {
         if (file.isDirectory()) {
             if (file.listFiles().length == 0) {
@@ -58,10 +89,5 @@ public class Utils
             inputStream.close();
         }
         catch (Exception ex) {}
-    }
-    
-    public static int random(Random rng, int min, int max)
-    {
-        return min + rng.nextInt(max - min);
     }
 }

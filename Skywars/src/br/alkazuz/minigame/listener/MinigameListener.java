@@ -31,12 +31,37 @@ import br.alkazuz.minigame.game.MinigameConfig;
 import br.alkazuz.minigame.game.Round;
 import br.alkazuz.minigame.game.RoundState;
 import br.alkazuz.minigame.main.Main;
+import br.alkazuz.spigot.addons.main.SpigotAddons;
 
 public class MinigameListener implements Listener
 {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        
+        if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) {
+        	
+        	Player target = Bukkit.getPlayer(SpigotAddons.playerTP.get(p.getName()));
+        	if(target != null) {
+        		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                    @Override
+                    public void run() {
+                    	p.teleport(target);
+                		p.sendMessage("§aVocê foi teleportado até "+target.getDisplayName()+"§a.");
+                		for(Round r : Main.theInstance().rounds) {
+                			if(r.hasPlayer(target)) {
+                				for(Player all : r.players.keySet()) {
+                					p.showPlayer(all);
+                				}
+                			}
+                		}
+                    }
+                }, 10L);
+        		
+        	}
+        	return;
+        }
+        
         Round round = Main.theInstance().getRound();
         if (round != null && round.state ==RoundState.AVAILABLE) {
             new BukkitRunnable() {

@@ -5,11 +5,9 @@ import java.util.concurrent.atomic.*;
 
 public class RoundLevel
 {
-    public Location spawnPos;
-    public BoundingBox startWall;
-    public BoundingBox endWall;
-    public BoundingBox finishRegion;
-    
+    public Location lobbySpawn;
+    public Location startSpawn;
+    public Location dragonSpawn;
     public World world;
     public static AtomicInteger worldCounter;
     
@@ -18,6 +16,6 @@ public class RoundLevel
     }
     
     public static String nextLevelName() {
-        return String.valueOf(MinigameConfig.LEVEL_NAME_PREFIX) + RoundLevel.worldCounter.getAndIncrement();
+        return String.valueOf(MinigameConfig.LEVE_NAME_PREFIX) + RoundLevel.worldCounter.getAndIncrement();
     }
 }

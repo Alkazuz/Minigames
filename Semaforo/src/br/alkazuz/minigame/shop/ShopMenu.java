@@ -26,18 +26,18 @@ public class ShopMenu
                 if (p.hasPermission("minigames.vip")) {
                     if (game.vipShop.get(p.getName()) < 3) {
                         for (ShopItem item : ShopItemManager.items) {
-                            inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPreço: 0.0").build());
+                            inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPre\u00e7o: 0.0").build());
                         }
                     }
                     else {
                         for (ShopItem item : ShopItemManager.items) {
-                            inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPreço: " + item.price / 2.0).build());
+                            inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPre\u00e7o: " + item.price / 2.0).build());
                         }
                     }
                 }
                 else {
                     for (ShopItem item : ShopItemManager.items) {
-                        inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPreço: " + item.price).build());
+                        inv.setItem(item.slot, new ItemBuilder(item.item).listLore("§aPre\u00e7o: " + item.price).build());
                     }
                 }
             }

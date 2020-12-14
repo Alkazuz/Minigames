@@ -6,6 +6,7 @@ import br.alkazuz.minigame.game.*;
 import org.bukkit.potion.*;
 import org.bukkit.inventory.*;
 import org.bukkit.entity.*;
+import java.util.*;
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.*;
@@ -19,11 +20,32 @@ public class ShopListener implements Listener
         Player p = event.getPlayer();
         for (Round r : Main.theInstance().rounds) {
             if (r.hasPlayer(p)) {
+                Round game = r;
                 if (item != null && item.isSimilar(ShopMenu.shop)) {
                     event.setCancelled(true);
                     ShopMenu.open(p);
                 }
+                if (game.state != RoundState.AVAILABLE && item != null && item.isSimilar(ShopItemManager.bySlot(0).item)) {
+                    p.sendMessage("§aVoc\u00ea ativou o efeito de velocidade.");
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1));
+                    this.removeItem(p);
+                }
+                if (game.state == RoundState.AVAILABLE || item == null || !item.isSimilar(ShopItemManager.bySlot(1).item)) {
+                    continue;
+                }
+                p.sendMessage("§aVoc\u00ea ativou o efeito de super pulo.");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 1));
             }
+        }
+    }
+    
+    private void removeItem(Player p) {
+        if (p.getItemInHand().getAmount() < 2) {
+            p.setItemInHand(new ItemStack(Material.AIR));
+        }
+        else {
+            ItemStack item = p.getItemInHand();
+            item.setAmount(item.getAmount() - 1);
         }
     }
     
@@ -41,11 +63,6 @@ public class ShopListener implements Listener
                     if (item == null) {
                         continue;
                     }
-                    if (item.item.getType() == Material.SLIME_BALL && p.getInventory().contains(Material.SLIME_BALL)) {
-                        p.sendMessage("§cEste item só pode ser comprado uma vez.");
-                        p.closeInventory();
-                        return;
-                    }
                     if (p.hasPermission("minigames.vip")) {
                         if (game.vipShop.get(p.getName()) < 3) {
                             game.broadcast(config.getString("messages.shop.vip").replace("{0}", p.getName()).replace("&", "§"));
@@ -56,7 +73,7 @@ public class ShopListener implements Listener
                         }
                         else {
                             if (Main.theInstance().economy.getBalance((OfflinePlayer)p) < item.price / 2.0) {
-                                p.sendMessage("§cVocê não tem dinheiro suficiente :(");
+                                p.sendMessage("§cVoc\u00ea n\u00e3o tem dinheiro suficiente :(");
                                 p.closeInventory();
                                 return;
                             }
@@ -69,7 +86,7 @@ public class ShopListener implements Listener
                     }
                     else {
                         if (Main.theInstance().economy.getBalance((OfflinePlayer)p) < item.price) {
-                            p.sendMessage("§cVocê não tem dinheiro suficiente :(");
+                            p.sendMessage("§cVoc\u00ea n\u00e3o tem dinheiro suficiente :(");
                             p.closeInventory();
                             return;
                         }

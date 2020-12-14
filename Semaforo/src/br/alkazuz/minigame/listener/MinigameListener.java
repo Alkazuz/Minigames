@@ -1,26 +1,70 @@
 package br.alkazuz.minigame.listener;
 
-import br.alkazuz.minigame.main.*;
-import org.bukkit.scheduler.*;
-import org.bukkit.plugin.*;
-import java.util.*;
-import org.bukkit.event.server.*;
-import br.alkazuz.minigame.game.*;
-import java.util.concurrent.*;
-import org.bukkit.event.*;
-import org.bukkit.*;
-import org.bukkit.event.block.*;
-import org.bukkit.event.entity.*;
-import org.bukkit.entity.*;
-import java.io.*;
-import org.bukkit.event.player.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import br.alkazuz.minigame.game.MinigameConfig;
+import br.alkazuz.minigame.game.Round;
+import br.alkazuz.minigame.main.Main;
+import br.alkazuz.spigot.addons.main.SpigotAddons;
 
 public class MinigameListener implements Listener
 {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        Round round = Main.theInstance().getRound();
+    	Player p = e.getPlayer();
+    	
+    	if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) {
+        	
+        	Player target = Bukkit.getPlayer(SpigotAddons.playerTP.get(p.getName()));
+        	if(target != null) {
+        		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                    @Override
+                    public void run() {
+                    	p.teleport(target);
+                		p.sendMessage("§aVocê foi teleportado até "+target.getDisplayName()+"§a.");
+                		for(Round r : Main.theInstance().rounds) {
+                			if(r.hasPlayer(target)) {
+                				for(Player all : r.players.values()) {
+                					p.showPlayer(all);
+                				}
+                			}
+                		}
+                    }
+                }, 10L);
+        		
+        	}
+        	return;
+        }
+    	
+    	Round round = Main.theInstance().finder.getRound();
         if (round != null) {
             new BukkitRunnable() {
                 public void run() {
@@ -40,11 +84,18 @@ public class MinigameListener implements Listener
             event.setMotd("§cManuten\u00e7\u00e3o");
             return;
         }
-        if (Main.theInstance().getRound() != null) {
+        if (Main.theInstance().finder.getRound() != null) {
             event.setMotd("§aSala disponivel");
             return;
         }
         event.setMotd("indisponivel");
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void Dragon_Destroy(EntityExplodeEvent event) {
+        if (event.getEntity() instanceof EnderDragon) {
+            event.setCancelled(false);
+        }
     }
     
     @EventHandler
@@ -70,6 +121,10 @@ public class MinigameListener implements Listener
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onSpawn(CreatureSpawnEvent event) {
+        if (event.getEntityType() == EntityType.ENDER_DRAGON) {
+            event.setCancelled(false);
+            return;
+        }
         event.setCancelled(true);
     }
     
@@ -146,7 +201,7 @@ public class MinigameListener implements Listener
     @EventHandler
     public void onJoin(PlayerLoginEvent event) {
         Player p = event.getPlayer();
-        Round round = Main.theInstance().getRound();
+        Round round = Main.theInstance().finder.getRound();
         if (round == null && !p.hasPermission("megasw.admin")) {
             event.setKickMessage("§cNenhuma partida encontrada.");
             event.setResult(PlayerLoginEvent.Result.KICK_OTHER);

@@ -13,7 +13,8 @@ public class ShopItemManager
     }
     
     public ShopItemManager() {
-        ShopItemManager.items.add(new ShopItem(new ItemBuilder(Material.SLIME_BALL).name("§bSegunda chance").build(), 5.0, 0));
+        ShopItemManager.items.add(new ShopItem(new ItemBuilder(Material.FEATHER).name("§bVelocidade").build(), 3.0, 0));
+        ShopItemManager.items.add(new ShopItem(new ItemBuilder(Material.IRON_BOOTS).name("§bSuper Pulo").build(), 3.0, 1));
     }
     
     public static ShopItem bySlot(int slot) {

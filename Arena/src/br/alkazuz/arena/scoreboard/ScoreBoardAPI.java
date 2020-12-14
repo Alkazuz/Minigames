@@ -21,6 +21,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
+import br.alkazuz.arena.game.Arena;
+import br.alkazuz.arena.game.GameManager;
+
 public class ScoreBoardAPI
 {
     private Scoreboard scoreboard;
@@ -32,7 +35,15 @@ public class ScoreBoardAPI
     int nteams;
     int nnn;
     
-    public ScoreBoardAPI(final String title, final String objName) {
+    private Objective nameHealthObj;
+    private Objective scoreObjective;
+    private Objective tabObjective;
+    private Team gameEnemy;
+    private Team gameTeams;
+    
+    private Player player;
+    
+    public ScoreBoardAPI(Player player, final String title, final String objName) {
         this.objName = null;
         this.obj = null;
         this.nteams = 50;
@@ -42,6 +53,7 @@ public class ScoreBoardAPI
         this.objName = objName;
         this.scores = Maps.newLinkedHashMap();
         this.teams = Maps.newLinkedHashMap();
+        this.player = player;
     }
     
     public void blankLine() {
@@ -84,9 +96,45 @@ public class ScoreBoardAPI
         return new AbstractMap.SimpleEntry<Team, String>(registerNewTeam, iterator.next());
     }
     
+    public void updateEnemy() {
+    	Arena round = GameManager.searchMatch();
+    	for(String a : round.players.keySet()) {
+    		Player p = Bukkit.getPlayer(a);
+    		if(p == null) continue;
+    		tabObjective.getScore(p.getName()).setScore(round.players.get(a).kills.get());
+    		if(p == player)continue;
+    		if(gameEnemy.hasEntry(p.getName())) continue;
+    		
+    		gameEnemy.addEntry(p.getName());
+    	}
+    }
+    
     public void build() {
         (this.obj = this.scoreboard.registerNewObjective(this.objName, "dummy")).setDisplayName(ChatColor.translateAlternateColorCodes('&', this.title));
         this.obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        
+        (this.nameHealthObj = this.scoreboard.registerNewObjective("namelifee", "health")).setDisplaySlot(DisplaySlot.BELOW_NAME);
+        this.nameHealthObj.setDisplayName(ChatColor.RED + "\u2764");
+        
+        (this.tabObjective = this.scoreboard.registerNewObjective("PlayerGaming", "dummy")).setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        
+        gameEnemy = this.scoreboard.registerNewTeam("2-PlayerGaming");
+        Arena round = GameManager.searchMatch();
+        if(round != null) {
+        	gameEnemy.setPrefix("§c");
+        	for(String a : round.players.keySet()) {
+        		Player p = Bukkit.getPlayer(a);
+        		if(p == null) continue;
+        		if(p == player)continue;
+        		tabObjective.getScore(p.getName()).setScore(round.players.get(a).kills.get());
+        		gameEnemy.addEntry(p.getName());
+        	}
+        }
+        
+        gameTeams = this.scoreboard.registerNewTeam("1-TeamsFriends");
+        this.gameTeams.setPrefix("§a");
+        gameTeams.addPlayer(player);
+        
         int n = this.scores.size() - 2 + 1;
         for (final Map.Entry<String, Integer> entry : this.scores.entrySet()) {
             final Map.Entry<Team, String> team = this.createTeam(entry.getKey());

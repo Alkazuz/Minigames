@@ -25,7 +25,7 @@ public class ScoreBoard implements Listener
     public static void createScoreBoard(final Player player, final Arena detetive) {
         final FileConfiguration config = Main.theInstance().config;
         player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-        final ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(config.getString("configuration.scoreboard.displayname").replace("&", "§"), new RandomUUID().getUUID());
+        final ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, config.getString("configuration.scoreboard.displayname").replace("&", "§"), new RandomUUID().getUUID());
         for (final ArenaPlayer dp : detetive.players.values()) {
             if (dp.kills.get() <= 0) {
                 continue;
