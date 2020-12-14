@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import br.alkazuz.minigame.data.PlayerData;
+import br.alkazuz.minigame.game.EscPlayer;
 import br.alkazuz.minigame.game.Round;
 import br.alkazuz.minigame.utils.Methods;
 
@@ -20,6 +21,16 @@ public class ScoreBoard implements Listener
         ScoreBoard.boards = new WeakHashMap<Player, ScoreBoardAPI>();
     }
     
+    public static void update(Player player) {
+    	ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
+    	scoreBoardAPI.updateplayer();
+    }
+    
+    public static void startHiden(Player player,Round round){
+    	ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
+    	scoreBoardAPI.hideNameTag();
+    }
+    
     public static void updateScoreBoardLobby(Player player,Round round,PlayerData data) {
        ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
         scoreBoardAPI.update("§b" + data.getRank() + "° Lugar", 6);
@@ -27,9 +38,9 @@ public class ScoreBoard implements Listener
         scoreBoardAPI.update("§f" + data.winTotal, 2);
     }
     
-    public static void createScoreBoardLobby(Player player,Round rouns,PlayerData data) {
-        player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-       ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI("§e§lESCONDE-ESCONDE", new RandomUUID().getUUID());
+    public static void createScoreBoardLobby(EscPlayer player,Round rouns,PlayerData data) {
+        player.player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+       ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, rouns, "§e§lESCONDE-ESCONDE", new RandomUUID().getUUID());
         scoreBoardAPI.add("§e", 7);
         scoreBoardAPI.add("§fRank: ", 6);
         scoreBoardAPI.add("§d", 5);
@@ -39,9 +50,9 @@ public class ScoreBoard implements Listener
         scoreBoardAPI.add("§a", 1);
         scoreBoardAPI.add("  §6jogar.zeusmc.net", 0);
         scoreBoardAPI.build();
-        ScoreBoard.boards.remove(player);
-        scoreBoardAPI.send(player);
-        ScoreBoard.boards.put(player, scoreBoardAPI);
+        ScoreBoard.boards.remove(player.player);
+        scoreBoardAPI.send(player.player);
+        ScoreBoard.boards.put(player.player, scoreBoardAPI);
     }
     
     @EventHandler
@@ -58,9 +69,9 @@ public class ScoreBoard implements Listener
          scoreBoardAPI.update("§a" + Methods.getRemainingTime2("", round.counter.timer), 2);
      }
     
-    public static void createScoreBoard(Player player,Round detetive) {
-        player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-        ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI("§e§lESCONDE-ESCONDE", new RandomUUID().getUUID());
+    public static void createScoreBoard(EscPlayer player,Round detetive) {
+        player.getPlayer().getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+        ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, detetive, "§e§lESCONDE-ESCONDE", new RandomUUID().getUUID());
         
         scoreBoardAPI.add("§e", 7);
         scoreBoardAPI.add("§fStatus", 6);
@@ -72,8 +83,8 @@ public class ScoreBoard implements Listener
         scoreBoardAPI.add("  §6jogar.zeusmc.net", 0);
         
         scoreBoardAPI.build();
-        ScoreBoard.boards.remove(player);
-        scoreBoardAPI.send(player);
-        ScoreBoard.boards.put(player, scoreBoardAPI);
+        ScoreBoard.boards.remove(player.player);
+        scoreBoardAPI.send(player.player);
+        ScoreBoard.boards.put(player.player, scoreBoardAPI);
     }
 }

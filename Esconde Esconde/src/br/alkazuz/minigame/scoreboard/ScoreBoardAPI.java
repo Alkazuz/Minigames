@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -19,6 +20,9 @@ import org.bukkit.scoreboard.Team;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+
+import br.alkazuz.minigame.game.EscPlayer;
+import br.alkazuz.minigame.game.Round;
 
 public class ScoreBoardAPI
 {
@@ -30,8 +34,12 @@ public class ScoreBoardAPI
     private Objective obj;
     int nteams;
     int nnn;
+    private EscPlayer escPlayer;
+    private Round round;
+    private static Team hiden;
+    private static Team seek;
     
-    public ScoreBoardAPI(String title, String objName) {
+    public ScoreBoardAPI(EscPlayer escPlayer, Round round, String title, String objName) {
         this.objName = null;
         this.obj = null;
         this.nteams = 50;
@@ -41,6 +49,37 @@ public class ScoreBoardAPI
         this.objName = objName;
         this.scores = new HashMap<String, Integer>();
         this.teams = new HashMap<Integer, Team>();
+        
+        this.escPlayer = escPlayer;
+        this.round = round;
+        
+        if(hiden == null) {
+        	hiden = scoreboard.registerNewTeam("Team_Hiden");
+        	hiden.setPrefix("§6");
+        }
+        
+        if(seek == null) {
+        	seek = scoreboard.registerNewTeam("Team_Seek");
+        	seek.setPrefix("§3");
+        }
+    }
+    
+    public void updateplayer() {
+    	if(hiden.hasEntry(escPlayer.player.getName())) {
+    		hiden.removeEntry(escPlayer.player.getName());
+    	}
+    	if(seek.hasEntry(escPlayer.player.getName())) {
+    		seek.removeEntry(escPlayer.player.getName());
+    	}
+    	if(escPlayer.seek) {
+    		seek.addEntry(escPlayer.player.getName());
+    	}else {
+    		hiden.addEntry(escPlayer.player.getName());
+    	}
+    }
+    
+    public void updateTagHide() {
+    	hiden.setNameTagVisibility(NameTagVisibility.HIDE_FOR_OTHER_TEAMS);
     }
     
     public void blankLine() {
@@ -81,6 +120,10 @@ public class ScoreBoardAPI
         Iterator<String> iterator = Splitter.fixedLength(16).split((CharSequence)s).iterator();
         registerNewTeam.setPrefix((String)iterator.next());
         return new AbstractMap.SimpleEntry<Team, String>(registerNewTeam, iterator.next());
+    }
+    
+    public void hideNameTag() {
+    	
     }
     
     public void build() {

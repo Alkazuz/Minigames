@@ -32,36 +32,47 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import br.alkazuz.minigame.game.MinigameConfig;
 import br.alkazuz.minigame.game.Round;
+import br.alkazuz.minigame.game.RoundState;
 import br.alkazuz.minigame.main.Main;
+import br.alkazuz.spigot.addons.main.SpigotAddons;
 
 public class MinigameListener implements Listener
 {
-    @EventHandler
+	@EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
-            @Override
-            public void run() {
-                new BukkitRunnable() {
+        
+        if(SpigotAddons.vanish.containsKey(p.getName()) && SpigotAddons.vanish.get(p.getName())) {
+        	
+        	Player target = Bukkit.getPlayer(SpigotAddons.playerTP.get(p.getName()));
+        	if(target != null) {
+        		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
+                    @Override
                     public void run() {
-                        for (Round r : Main.theInstance().rounds) {
-                            if (r.hasPlayer(p)) {
-                                this.cancel();
-                                return;
-                            }
-                        }
-                        Round round = Main.theInstance().getRound();
-                        if (round != null) {
-                            new BukkitRunnable() {
-                                public void run() {
-                                    round.joinPlayer(p);
-                                }
-                            }.runTask((Plugin)Main.theInstance());
-                        }
+                    	p.teleport(target);
+                		p.sendMessage("§aVocê foi teleportado até "+target.getDisplayName()+"§a.");
+                		for(Round r : Main.theInstance().rounds) {
+                			if(r.hasPlayer(target)) {
+                				for(Player all : r.players.keySet()) {
+                					p.showPlayer(all);
+                				}
+                			}
+                		}
                     }
-                }.runTaskTimer((Plugin)Main.theInstance(), 0L, 5L);
-            }
-        }, 5L);
+                }, 10L);
+        		
+        	}
+        	return;
+        }
+        
+        Round round = Main.theInstance().getRound();
+        if (round != null && round.state ==RoundState.AVAILABLE) {
+            new BukkitRunnable() {
+                public void run() {
+                    round.joinPlayer(p);
+                }
+            }.runTask((Plugin)Main.theInstance());
+        }
     }
     
     @EventHandler

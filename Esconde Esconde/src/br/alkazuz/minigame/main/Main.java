@@ -33,7 +33,6 @@ import com.huskehhh.mysql.mysql.MySQL;
 import com.huskehhh.mysql.sqlite.SQLite;
 
 import br.alkazuz.minigame.api.ActionBarAPI;
-import br.alkazuz.minigame.api.NoNameTag;
 import br.alkazuz.minigame.api.ServerAPI;
 import br.alkazuz.minigame.api.TitleAPI;
 import br.alkazuz.minigame.commands.CommandAEsconde;
@@ -128,17 +127,7 @@ public class Main extends JavaPlugin implements Runnable
         this.setupEconomy();
         this.registerCommand();
         this.getServer().getScheduler().scheduleSyncRepeatingTask((Plugin)this, this, 20L, 20L);
-        
-        Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, new Runnable() {
-            @Override
-            public void run() {
-                LevelInfo[] access$0;
-                for (int length = (access$0 = Main.this.levels).length, i = 0; i < length; ++i) {
-                    LevelInfo level = access$0[i];
-                    Main.this.createRound(null);
-                }
-            }
-        });
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)theInstance(), new Runnable() {
             @Override
             public void run() {
@@ -210,14 +199,13 @@ public class Main extends JavaPlugin implements Runnable
     }
     
     public void onDisable() {
-    	NoNameTag.unload();
         for (Player p : Bukkit.getOnlinePlayers()) {
             ServerAPI.sendPlayer(p, "lobby");
         }
         
     }
     
-    private void createRound(World oldWorld) {
+    public void createRound(World oldWorld) {
         Server sv = this.getServer();
         BukkitScheduler scheduler = sv.getScheduler();
         File worldDir = sv.getWorldContainer();
@@ -286,7 +274,6 @@ public class Main extends JavaPlugin implements Runnable
         ReflectionUtils.loadUtils();
         ActionBarAPI.load();
         TitleAPI.load();
-        NoNameTag.load();
     }
     
     public void registerEvents() {

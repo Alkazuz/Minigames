@@ -49,7 +49,7 @@ public class Round implements Listener
 {
 	public static HashMap<String, Long> delay = new HashMap<String, Long>();
     public int id;
-    public HashMap<Player, InfoPlayer> players;
+    public HashMap<Player, EscPlayer> players;
     public RoundState state;
     public long timeStarted;
     public long timeLoaded;
@@ -63,7 +63,7 @@ public class Round implements Listener
     }
     
     public Round(RoundLevel level) {
-        this.players = new HashMap<Player, InfoPlayer>();
+        this.players = new HashMap<Player, EscPlayer>();
         this.state = RoundState.AVAILABLE;
         this.level = level;
         if (level == null) {
@@ -128,7 +128,7 @@ public class Round implements Listener
                 	Iterator<Player> iterator = players.keySet().iterator();
                     while(iterator.hasNext()) {
                     	Player p = iterator.next();
-        				InfoPlayer info = players.get(p);
+        				EscPlayer info = players.get(p);
         				if(info.seek) {
         					PlayerManager.fromNick(p.getName()).winTotal++;
         				}
@@ -147,7 +147,7 @@ public class Round implements Listener
     	if(getSeekCount() <= 0 && (this.state == RoundState.IN_PROGRESS || this.state == RoundState.HIDDING)) {
     		List<Player> list = new ArrayList<Player>(this.players.keySet());
             Player random = list.get(new Random().nextInt(list.size()));
-            InfoPlayer dp = this.players.get(random);
+            EscPlayer dp = this.players.get(random);
             dp.seek = true;
             
             broadcast("§3"+random.getName()+" §eé o novo Seeker.");
@@ -179,7 +179,7 @@ public class Round implements Listener
     		if(counter.timer <= 0 && getHiddenCount() > 0) {
     			broadcast("\n§a§lOS ESCONDIDOS VENCERAM!!\n");
     			for(Player p : players.keySet()) {
-    				InfoPlayer info = players.get(p);
+    				EscPlayer info = players.get(p);
     				if(!info.seek) {
     					Main.theInstance().economy.depositPlayer(p, MinigameConfig.MONEY_HIDDEN);
     					p.sendMessage(MinigameConfig.win_you.replace("{0}", String.valueOf(MinigameConfig.MONEY_HIDDEN)));
@@ -263,17 +263,17 @@ public class Round implements Listener
             
             List<Player> list = new ArrayList<Player>(this.players.keySet());
             Player random = list.get(new Random().nextInt(list.size()));
-            InfoPlayer dp = this.players.get(random);
+            EscPlayer dp = this.players.get(random);
             dp.seek = true;
             
             Iterator<Player> iterator = players.keySet().iterator();
             while(iterator.hasNext()) {
             	Player p = iterator.next();
-            	InfoPlayer dp2 = this.players.get(p);
+            	EscPlayer dp2 = this.players.get(p);
             	for (Player all : this.players.keySet()) {
             		p.hidePlayer(all);
             		all.hidePlayer(p);
-            		InfoPlayer dpall = this.players.get(all);
+            		EscPlayer dpall = this.players.get(all);
             		if(dpall.seek == dp2.seek) {
             			all.showPlayer(p);
             			p.showPlayer(all);
@@ -283,11 +283,12 @@ public class Round implements Listener
             counter.timer = 61;
             for (Player p : this.players.keySet()) {
                 try {
-                	ScoreBoard.createScoreBoard(p, this);
-                    InfoPlayer dp2 = this.players.get(p);
+                	ScoreBoard.createScoreBoard(players.get(p), this);
+                    EscPlayer dp2 = this.players.get(p);
                     for (PotionEffect pe : p.getActivePotionEffects()) {
                         p.removePotionEffect(pe.getType());
                     }
+                   
                     PlayerData fromNick = PlayerManager.fromNick(p.getName());
                     ++fromNick.partidas;
                     for (String n : MinigameConfig.GAME_START) {
@@ -330,6 +331,8 @@ public class Round implements Listener
                     			.addUnsafeEnchantment(Enchantment.DURABILITY, 5).build());
                     	p.sendMessage("§e§lVOCÊ SERÁ LIBERADO EM 1 MINUTO, ENQUANTO ISSO, VOCÊ NÃO IRÁ VER ELES SE ESCONDEREM.");
                     }
+                    ScoreBoard.startHiden(p, this);
+                    ScoreBoard.update(p);
                 }
                 catch (Exception ex) {ex.printStackTrace();}
             }
@@ -342,7 +345,7 @@ public class Round implements Listener
                     broadcast("\n§E§LOS SEEKERS FORAM LIBERADOS!!!\n");
                     
                     for (Player p : players.keySet()) {
-                    	 InfoPlayer dp2 = players.get(p);
+                    	 EscPlayer dp2 = players.get(p);
                     	 if(dp2.seek) {
                     		 p.teleport(level.startSpawn);
                     	 }else {
@@ -362,7 +365,7 @@ public class Round implements Listener
     
     public int getSeekCount() {
         int i = 0;
-        for (InfoPlayer dp : this.players.values()) {
+        for (EscPlayer dp : this.players.values()) {
             if (dp.seek) {
                 ++i;
             }
@@ -372,7 +375,7 @@ public class Round implements Listener
     
     public int getHiddenCount() {
         int i = 0;
-        for (InfoPlayer dp : this.players.values()) {
+        for (EscPlayer dp : this.players.values()) {
             if (!dp.seek) {
                 ++i;
             }
@@ -385,7 +388,7 @@ public class Round implements Listener
         TagAPI.apply("", "", p, true);
         PlayerAPI.resetPlayer(p);
         NoNameTag.showNametag(p);
-        this.players.put(p, new InfoPlayer(p.getName()));
+        this.players.put(p, new EscPlayer(p));
         for (Player all : Bukkit.getOnlinePlayers()) {
             all.hidePlayer(p);
             p.hidePlayer(all);
@@ -421,7 +424,7 @@ public class Round implements Listener
         PlayerData data = PlayerManager.fromNick(p.getName());
         p.getInventory().setItem(7, ShopMenu.shop);
         p.getInventory().setItem(8, ShopMenu.vip);
-        ScoreBoard.createScoreBoardLobby(p, this, data);
+        ScoreBoard.createScoreBoardLobby(players.get(p), this, data);
         ScoreBoard.updateScoreBoardLobby(p, this, data);
         if(delay.containsKey(p.getName())) {
         	if(System.currentTimeMillis() - delay.get(p.getName()) <= 3000) {
@@ -510,7 +513,7 @@ public class Round implements Listener
     		
     		respawn(player);
     		
-    		InfoPlayer dp = this.players.get(player);
+    		EscPlayer dp = this.players.get(player);
     		if(event.getEntity().getKiller() == null) {
     			if(dp.seek) {
     				 Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
@@ -521,7 +524,6 @@ public class Round implements Listener
 	    	                    }else {
 	    	                    	player.teleport(level.seekSpawn);
 	    	                    }
-	    	                    NoNameTag.showNametag(player);
 	    	                }
 	    	            }, 5L);
     			}else {
@@ -529,6 +531,7 @@ public class Round implements Listener
                     	@Override
                     	public void run() {
                     		setSeek(player);
+                    		ScoreBoard.update(player);
                     	}
     	            }, 5L);
     				return;
@@ -538,7 +541,7 @@ public class Round implements Listener
     		if(event.getEntity().getKiller() != null) {
     			Player killer = event.getEntity().getKiller();
     			if(hasPlayer(killer)) {
-    				InfoPlayer ikiller = this.players.get(killer);
+    				EscPlayer ikiller = this.players.get(killer);
     				if(ikiller.seek) {
     					broadcast(MinigameConfig.death
     							.replace("{0}", killer.getName())
@@ -570,7 +573,7 @@ public class Round implements Listener
     }
     
     public void setSeek(Player player) {
-    	InfoPlayer dp = this.players.get(player);
+    	EscPlayer dp = this.players.get(player);
     	NoNameTag.showNametag(player);
         dp.seek = true;
         TagAPI.apply("§3", "", player, true);
@@ -618,8 +621,8 @@ public class Round implements Listener
             Player damager = (Player)event.getDamager();
             Player player = (Player)event.getEntity();
             if (this.hasPlayer(player) && this.hasPlayer(damager)) {
-                InfoPlayer dp = this.players.get(damager);
-                InfoPlayer dpDamaged = this.players.get(player);
+                EscPlayer dp = this.players.get(damager);
+                EscPlayer dpDamaged = this.players.get(player);
                 if (dpDamaged == null) {
                     event.setCancelled(true);
                     return;
