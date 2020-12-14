@@ -1,0 +1,8 @@
+name: Detetive
+author: Alkazuz
+main: br.alkazuz.minigame.main.Main
+version: 0.1
+depend: [Vault, FastAsyncWorldEdit]
+commands:
+  adetetive:
+  votar:

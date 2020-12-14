@@ -1,0 +1,48 @@
+SQL:
+  MySQL: false
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+configuration:
+  start-time: 300
+  min-players: 5
+  money-on-win: 15
+  bossbar: "&bRodada &e{0} &b| Próxima rodada em: &e{1}&b."
+messages:
+  
+  welcome:
+  - '&f» Você está no &6Detetive&f / Online aqui: &a{count-players}'
+  - '&f» Para abrir a loja use: &9/loja'
+  - '&f» Para voltar ao lobby principal: &9/spawn'
+  game-start:
+    message: 
+    - ''
+    - '&3[Detetive] &bIniciando a rodada!!'
+    - '&3[PRÊMIO] &bPremio deste minigame: &a{0} &bcoins!'
+    - ''
+    victim: "%n%&2&lNESTA PARTIDA VOCÊ É UMA VÍTIMA!%n%&e"
+    assassin: "%n%&c&lNESTA PARTIDA VOCÊ É UM DOS ASSASSINOS!%n%&e"
+  killer-error: "&cVocê já matou nesta rodada!"
+  killed: '&cA vítima {0} foi morta por um assassino!'
+  assassin-quit: "&cO assassino {0} abandonou a partida!"
+  vote: "&cVocê votou em &e{0}&c."
+  already-voted: "&cVocê já votou nessa rodada."
+  killer-round: "&cO assassino &e{0} &cnão conseguiu matar ningúem e perdeu!"
+  fated-fail: "&eA vítima &b{0} &efoi condenada injustamente."
+  fated: "&cO assassino {0} foi condenado!"
+  next-round: "%n%&6&lRodada {round} iniciada. &eHá {1} vítimas e {0} assassinos!%n%&e"
+  killer-next-round: "&dVocê pode matar novamente nessa rodada!"
+  
+  lose: '&c&lVOCÊ PERDEU A PARTIDA :('
+  shop:
+    vip: '&6{0} &bÉ VIP e pegou um item grátis na loja!'
+    normal: '&6{0} &bcomprou um item por &6{1} &bcoin(s) na loja!'
+  win:
+    you: '&2Você ganhou: {0} coin(s)%n%&6&lVOCÊ VENCEU A PARTIDA!'
+    assassin: "&cOs assassinos venceram!"
+    victim: "&2Todos os assassinos foram condenados, as vítimas venceram!"
+  starting:
+    with-players: '&bIniciando a rodada em: &a{0} &bsegundo(s)!'
+    without-players: '&bFaltam &c{0} &bjogadores ou &e{1} &bsegundos para começar!'

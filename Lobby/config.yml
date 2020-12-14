@@ -1,0 +1,13 @@
+SQL:
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+servers:
+  detetive:
+    flat: Detetive
+    icon: '131:0'
+    ip: localhost:25590
+    description:
+    - '&eAjude a procurar e condenar assassinos!'

@@ -1,0 +1,31 @@
+SQL:
+  MySQL: false
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+configuration:
+  start-time: 60
+  min-players: 5
+  money-hidden: 15
+  money-seek: 5
+messages:
+  death: '&3{0} §7encontrou §6{1} §7e ganhou &2$&f1 &7coin!'
+  quit: '&3{0} §cabandonou a partida.'
+  welcome:
+  - '&f» Você está no &6Esconde Esconde&f / Online aqui: &a{count-players}'
+  - '&f» Para abrir a loja use: &9/loja'
+  - '&f» Para voltar ao lobby principal: &9/spawn'
+  game-start:
+    message: 
+    - ''
+    - '&3[Esconde-Esconde] &bIniciando a rodada!!'
+    - '&2[PRÊMIO] &aPremio deste minigame: &2$&f{0} &acoins!'
+    - ''
+  lose: '&c&lVOCÊ PERDEU A PARTIDA :('
+  win:
+    you: '&2Você ganhou: {0} coin(s)%n%&6&lVOCÊ VENCEU A PARTIDA!'
+  starting:
+    with-players: '&eA partida irá começar em &d{0} &esegundo(s).'
+    without-players: '&cPrecisamos de &4{0} &cjogadores ou &e{1} &csegundos.

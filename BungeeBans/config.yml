@@ -1,0 +1,62 @@
+SQL:
+  MySQL: false
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+bans:
+    cheat:
+        title: "Uso de Hack/Modificação no cliente"
+        type: BAN
+        time: '---'
+    spam:
+        title: "Flood/spam no chat"
+        type: MUTE
+        time: '4h,30m'
+messages:
+    mute-temp: 
+    - ' '
+    - '&cVocê foi banido do chat temporariamente!'
+    - '&cRestrição aplicada em: &e{0}'
+    - '&cMotivo: %e{1}'
+    - '&cProva: &e{2}'
+    - ' '
+    - '&cAplicado por: &e{3}'
+    - '&cExpira em: &e{4}'
+    - ''
+    mute: 
+    - ' '
+    - '&cVocê foi banido do chat permanente!'
+    - '&cRestrição aplicada em: &e{0}'
+    - '&cMotivo: %e{1}'
+    - '&cProva: &e{2}'
+    - ''
+    ban-temp: 
+    - ' '
+    - '&cVocê foi banido temporariamente!'
+    - '&cRestrição aplicada em: &e{0}'
+    - '&cMotivo: %e{1}'
+    - '&cProva: &e{2}'
+    - ' '
+    - '&cAplicado por: &e{3}'
+    - '&cExpira em: &e{4}'
+    - ''
+    ban: 
+    - ' '
+    - '&cVocê foi banido permanente!'
+    - '&cRestrição aplicada em: &e{0}'
+    - '&cMotivo: %e{1}'
+    - '&cProva: &e{2}'
+    - ' '
+    - '&cAplicado por: &e{3}'
+    - ''
+config:
+    mute-commands:
+    - 'tell'
+    - 't'
+    - 'msg'
+    - 'g'
+    - 'reply'
+    - 'r'
+    

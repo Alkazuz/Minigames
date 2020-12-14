@@ -1,0 +1,7 @@
+name: EscondeEsconde
+author: Alkazuz
+main: br.alkazuz.minigame.main.Main
+version: 1.0
+depend: [Vault, FastAsyncWorldEdit]
+commands:
+  aesconde:

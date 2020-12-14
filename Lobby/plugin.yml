@@ -1,0 +1,11 @@
+name: Lobby
+author: Alkazuz
+main: br.alkazuz.lobby.main.Main
+version: 0.1
+depend: [Vault, ProtocolLib, Citizens, HolographicDisplays]
+commands:
+  g:
+  setnpc:
+  setlobby:
+  reini:
+  setnpcserver:

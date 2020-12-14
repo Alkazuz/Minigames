@@ -1,0 +1,39 @@
+SQL:
+  MySQL: false
+  host: localhost
+  port: 3306
+  user: user
+  pass: pass
+  database: database
+configuration:
+  start-time: 300
+  time: 900
+  min-players: 5
+  money-on-win: 15
+  bossbar: "&b&lTempo restante: &e{0}"
+  scoreboard:
+    displayname: "&6&LMAIS MATOU"
+  bossbar: "&eTempo restante | &b{0}&e."
+messages:
+  killed: '&3{0} &cfoi morto por &b{1}'
+  welcome:
+  - '&f» Você está no &6Arena&f / Online aqui: &a{count-players}'
+  - '&f» Para abrir a loja use: &9/loja'
+  - '&f» Para voltar ao lobby principal: &9/spawn'
+  game-start:
+    message: 
+    - ''
+    - '&3[Arena] &bIniciando a partida!!'
+    - '&3[PRÊMIO] &bPremio deste minigame: &a{0} &bcoins!'
+    - ''
+  invincible:
+    start: '&6Atenção: &eVocê está invencível por 5 segundos!'
+    end: '&6Atenção: &eSua invencibilidade acabou!'
+  lose: '&c&lVOCÊ PERDEU A PARTIDA :('
+  win:
+    you: '&2Você ganhou: {0} coin(s)%n%&6&lVOCÊ VENCEU A PARTIDA!'
+    other: '&c{0} venceu a partida!'
+    success: '&aPartida encontrada, enviando você para o jogo!'
+  shop:
+    vip: '&6{0} &bé VIP e pegou um item grátis na loja!'
+    normal: '&6{0} &bcomprou um item por &6{1} &bcoin(s) na loja!'

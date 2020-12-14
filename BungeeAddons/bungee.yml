@@ -1,0 +1,4 @@
+name: BungeeAddons
+main: br.alkazuz.bungee.addons.main.Main
+version: 1.0
+author: Alkazuz

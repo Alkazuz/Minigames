@@ -1,0 +1,5 @@
+name: Arena
+author: Alkazuz
+main: br.alkazuz.arena.main.Main
+version: 0.1
+depend: [Vault, FastAsyncWorldEdit]
