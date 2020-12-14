@@ -1,0 +1,10 @@
+SQL:
+  host: localhost
+  port: 3306
+  user: root
+  pass: D!Ak^qad2xfq
+  database: minigames
+  tags-table: nte_groups
+  
+groups:
+    default-group: Membro

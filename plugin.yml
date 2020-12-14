@@ -1,0 +1,4 @@
+name: SpigotAddons
+author: Alkazuz
+main: br.alkazuz.spigot.addons.main.Main
+version: 0.1
