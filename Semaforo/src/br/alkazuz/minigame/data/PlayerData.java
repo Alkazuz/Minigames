@@ -16,7 +16,7 @@ public class PlayerData
         this.winTotal = 0;
     }
     
-    public int getRank() {
+    public int getRank() { 
     	try {
     		if (RankingUpdater.ranking.containsKey(this.nick)) {
                 return RankingUpdater.ranking.get(this.nick);
