@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 
 import br.alkazuz.minigame.game.EscPlayer;
 import br.alkazuz.minigame.game.Round;
+import br.alkazuz.minigame.game.RoundState;
 
 public class ScoreBoardAPI
 {
@@ -36,8 +37,8 @@ public class ScoreBoardAPI
     int nnn;
     private EscPlayer escPlayer;
     private Round round;
-    private static Team hiden;
-    private static Team seek;
+    private Team hiden;
+    private Team seek;
     
     public ScoreBoardAPI(EscPlayer escPlayer, Round round, String title, String objName) {
         this.objName = null;
@@ -53,33 +54,11 @@ public class ScoreBoardAPI
         this.escPlayer = escPlayer;
         this.round = round;
         
-        if(hiden == null) {
-        	hiden = scoreboard.registerNewTeam("Team_Hiden");
-        	hiden.setPrefix("§6");
-        }
+        hiden = scoreboard.registerNewTeam("Team_Hiden");
+        hiden.setPrefix("§6");
         
-        if(seek == null) {
-        	seek = scoreboard.registerNewTeam("Team_Seek");
-        	seek.setPrefix("§3");
-        }
-    }
-    
-    public void updateplayer() {
-    	if(hiden.hasEntry(escPlayer.player.getName())) {
-    		hiden.removeEntry(escPlayer.player.getName());
-    	}
-    	if(seek.hasEntry(escPlayer.player.getName())) {
-    		seek.removeEntry(escPlayer.player.getName());
-    	}
-    	if(escPlayer.seek) {
-    		seek.addEntry(escPlayer.player.getName());
-    	}else {
-    		hiden.addEntry(escPlayer.player.getName());
-    	}
-    }
-    
-    public void updateTagHide() {
-    	hiden.setNameTagVisibility(NameTagVisibility.HIDE_FOR_OTHER_TEAMS);
+        seek = scoreboard.registerNewTeam("Team_Seek");
+    	seek.setPrefix("§3");
     }
     
     public void blankLine() {
@@ -126,11 +105,38 @@ public class ScoreBoardAPI
     	
     }
     
+    public void updateTeams() {
+    	
+    	for(EscPlayer players : round.players.values()) {
+    		if(players.seek && !seek.hasEntry(players.player.getName())) {
+    			seek.addEntry(players.player.getName());
+    		}
+    		if(!players.seek && !hiden.hasEntry(players.player.getName())){
+    			hiden.addEntry(players.player.getName());
+    		}
+    		if(players.seek && hiden.hasEntry(players.player.getName())){
+    			hiden.removeEntry(players.player.getName());
+    			seek.addEntry(players.player.getName());
+    		}
+    		
+    		if(!players.seek && seek.hasEntry(players.player.getName())){
+    			seek.removeEntry(players.player.getName());
+    			hiden.addEntry(players.player.getName());
+    		}
+    	}
+    	hiden.setNameTagVisibility(NameTagVisibility.HIDE_FOR_OTHER_TEAMS);
+    }
+    
     public void build() {
         (this.obj = this.scoreboard.registerNewObjective(this.objName, "dummy")).setDisplayName(ChatColor.translateAlternateColorCodes('&', this.title));
         this.obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         int n = this.scores.size() - 2 + 1;
         int n2 = 0;
+        
+        if(round.state == RoundState.IN_PROGRESS || round.state == RoundState.HIDDING) {
+        	updateTeams();
+        }
+        
         for (Map.Entry<String, Integer> entry : this.scores.entrySet()) {
             n2 += 2;
             Map.Entry<Team, String> team = this.createTeam(entry.getKey());

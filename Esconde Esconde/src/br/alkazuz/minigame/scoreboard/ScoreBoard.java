@@ -22,13 +22,9 @@ public class ScoreBoard implements Listener
     }
     
     public static void update(Player player) {
+    	if(!ScoreBoard.boards.containsKey(player))return;
     	ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
-    	scoreBoardAPI.updateplayer();
-    }
-    
-    public static void startHiden(Player player,Round round){
-    	ScoreBoardAPI scoreBoardAPI = ScoreBoard.boards.get(player);
-    	scoreBoardAPI.hideNameTag();
+    	scoreBoardAPI.updateTeams();
     }
     
     public static void updateScoreBoardLobby(Player player,Round round,PlayerData data) {
@@ -74,7 +70,7 @@ public class ScoreBoard implements Listener
         ScoreBoardAPI scoreBoardAPI = new ScoreBoardAPI(player, detetive, "§e§lESCONDE-ESCONDE", new RandomUUID().getUUID());
         
         scoreBoardAPI.add("§e", 7);
-        scoreBoardAPI.add("§fStatus", 6);
+        scoreBoardAPI.add("§eInfo. da partida:", 6);
         scoreBoardAPI.add("§3 \u2022 Procurando:", 5);
         scoreBoardAPI.add("§6 \u2022 Escondidos:", 4);
         scoreBoardAPI.add("§d", 3);

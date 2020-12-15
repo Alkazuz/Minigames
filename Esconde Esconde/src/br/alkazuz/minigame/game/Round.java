@@ -30,7 +30,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 
-import br.alkazuz.minigame.api.NoNameTag;
 import br.alkazuz.minigame.api.PlayerAPI;
 import br.alkazuz.minigame.api.ServerAPI;
 import br.alkazuz.minigame.api.TagAPI;
@@ -125,21 +124,18 @@ public class Round implements Listener
     		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)Main.theInstance(), (Runnable)new Runnable() {
                 @Override
                 public void run() {
-                	Iterator<Player> iterator = players.keySet().iterator();
+                	Iterator<Player> iterator = new ArrayList<Player>(players.keySet()).iterator();
                     while(iterator.hasNext()) {
                     	Player p = iterator.next();
         				EscPlayer info = players.get(p);
         				if(info.seek) {
         					PlayerManager.fromNick(p.getName()).winTotal++;
         				}
-            		}
-            		for(Player p : players.keySet()) {
-            			removePlayer(p);
+        				removePlayer(p);
             		}
             		state = RoundState.FINISHED;
-                    
                 }
-            }, 60L);
+            }, 80L);
     		
     	}
     	
@@ -152,7 +148,9 @@ public class Round implements Listener
             
             broadcast("§3"+random.getName()+" §eé o novo Seeker.");
             
-            NoNameTag.showNametag(random);
+            for(Player p : players.keySet()) {
+    			ScoreBoard.update(p);
+    		}
             dp.seek = true;
             TagAPI.apply("§3", "", random, true);
             random.getInventory().setBoots(new ItemBuilder(Material.LEATHER_BOOTS)
@@ -200,7 +198,7 @@ public class Round implements Listener
         	
         	int playersTotal = this.totalPlayers();
     		String msg = this.counter.getMessageAndUpdate(playersTotal);
-    		if(msg != null) {
+    		if(msg != null && this.state == RoundState.HIDDING) {
     			for (Player p2 : this.players.keySet()) {
                 	p2.sendMessage(msg);
                 }
@@ -331,7 +329,6 @@ public class Round implements Listener
                     			.addUnsafeEnchantment(Enchantment.DURABILITY, 5).build());
                     	p.sendMessage("§e§lVOCÊ SERÁ LIBERADO EM 1 MINUTO, ENQUANTO ISSO, VOCÊ NÃO IRÁ VER ELES SE ESCONDEREM.");
                     }
-                    ScoreBoard.startHiden(p, this);
                     ScoreBoard.update(p);
                 }
                 catch (Exception ex) {ex.printStackTrace();}
@@ -349,7 +346,9 @@ public class Round implements Listener
                     	 if(dp2.seek) {
                     		 p.teleport(level.startSpawn);
                     	 }else {
-                    		 NoNameTag.hideNametag(p);
+                    		 for(Player pa : players.keySet()) {
+                    				ScoreBoard.update(pa);
+                    			}
                     	 }
                     	for (Player all : players.keySet()) {
                     		all.showPlayer(p);
@@ -385,9 +384,9 @@ public class Round implements Listener
     
     public void joinPlayer(Player p) {
     	
-        TagAPI.apply("", "", p, true);
+        //TagAPI.apply("", "", p, true);
         PlayerAPI.resetPlayer(p);
-        NoNameTag.showNametag(p);
+        //NoNameTag.showNametag(p);
         this.players.put(p, new EscPlayer(p));
         for (Player all : Bukkit.getOnlinePlayers()) {
             all.hidePlayer(p);
@@ -407,23 +406,11 @@ public class Round implements Listener
                     all.showPlayer(p);
                     p.showPlayer(all);
                 }
-                for (Entity e : level.startSpawn.getWorld().getEntities()) {
-                    if (e instanceof Player) {
-                        continue;
-                    }
-                    if (e instanceof EntityPainting) {
-                        continue;
-                    }
-                    if (e instanceof EntityItemFrame) {
-                        continue;
-                    }
-                    e.remove();
-                }
             }
         }, 2L);
         PlayerData data = PlayerManager.fromNick(p.getName());
-        p.getInventory().setItem(7, ShopMenu.shop);
-        p.getInventory().setItem(8, ShopMenu.vip);
+        p.getInventory().setItem(8, ShopMenu.shop);
+        //p.getInventory().setItem(8, ShopMenu.vip);
         ScoreBoard.createScoreBoardLobby(players.get(p), this, data);
         ScoreBoard.updateScoreBoardLobby(p, this, data);
         if(delay.containsKey(p.getName())) {
@@ -434,7 +421,7 @@ public class Round implements Listener
         }
         delay.put(p.getName(), System.currentTimeMillis());
         for (String d : MinigameConfig.WELCOME) {
-            p.sendMessage(d.replace("{count-players}", String.valueOf(this.players.size())));
+            p.sendMessage(d.replace("{0}", String.valueOf(this.players.size())));
         }
     }
     
@@ -479,7 +466,6 @@ public class Round implements Listener
             	e.setRespawnLocation(level.seekSpawn);
             	respawn(p);
             }
-        	 NoNameTag.showNametag(p);
         }
     }
     
@@ -574,7 +560,7 @@ public class Round implements Listener
     
     public void setSeek(Player player) {
     	EscPlayer dp = this.players.get(player);
-    	NoNameTag.showNametag(player);
+    	
         dp.seek = true;
         TagAPI.apply("§3", "", player, true);
         player.getInventory().setBoots(new ItemBuilder(Material.LEATHER_BOOTS)
@@ -589,6 +575,10 @@ public class Round implements Listener
     			.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2)
     			.addUnsafeEnchantment(Enchantment.DURABILITY, 5).build());
 		player.getInventory().remove(Material.STICK);
+		
+		for(Player p : players.keySet()) {
+			ScoreBoard.update(p);
+		}
     }
     
     @EventHandler
